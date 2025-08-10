@@ -2,7 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-import build_lib
+from .libs import build_lib
 
 
 def get_args():

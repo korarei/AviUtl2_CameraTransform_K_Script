@@ -72,5 +72,5 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ env.SCRIPT_NAME }}_${{ github.ref_name }}
-        files: 'release/*.zip'
-        body_path: release/release_note.txt
+        files: 'build/*.zip'
+        body_path: build/release_note.txt

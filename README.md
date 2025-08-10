@@ -19,7 +19,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta5](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta6](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 
 ## 導入・削除・更新
@@ -30,7 +30,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ### 導入
 
-1.  同梱の`*.anm2`と`.*dll`を`%ProgramData%`内の`aviutl2\\Script`フォルダまたはその子フォルダに入れる．
+1.  同梱の`*.cam2`と`.*dll`を`%ProgramData%`内の`aviutl2\\Script`フォルダまたはその子フォルダに入れる．
 
 `beta4`以降では`aviutl2.exe`と同じ階層内の`data\\Script`フォルダ内でも可．
 

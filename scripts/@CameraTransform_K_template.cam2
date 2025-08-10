@@ -1,0 +1,188 @@
+@Transform
+--infomation:Transform${SCRIPT_NAME} ${VERSION}
+--label:${LABEL}
+--track@t4:X,-100000,100000,0,0.01
+--track@t5:Y,-100000,100000,0,0.01
+--track@t6:Z,-100000,100000,0,0.01
+--track0:W Rotation,-3600,3600,0,0.01
+--track1:X Rotation,-3600,3600,0,0.01
+--track2:Y Rotation,-3600,3600,0,0.01
+--track3:Z Rotation,-3600,3600,0,0.01
+--select@s0:Rotation Mode=21,Quaternion=0,Axis Angle=1,XYZ Euler=5,XZY Euler=7,YXZ Euler=11,YZX Euler=15,ZXY Euler=19,ZYX Euler=21
+--track@t7:Parent Layer,-100,100,0,1
+--check0:Use Relative Layer,0
+--value@_0:PI,{}
+
+_0 = _0 or {}
+local x = tonumber(_0.x) or t4 t4 = nil
+local y = tonumber(_0.y) or t5 t5 = nil
+local z = tonumber(_0.z) or t6 t6 = nil
+local rw = tonumber(_0.rw) or obj.track0
+local rx = tonumber(_0.rx) or obj.track1
+local ry = tonumber(_0.ry) or obj.track2
+local rz = tonumber(_0.rz) or obj.track3
+local rot_mode = tonumber(_0.rot_mode) or s0 s0 = nil
+local parent_layer = math.floor(tonumber(_0.parent_layer) or t7) t7 = nil
+local use_rel_layer = obj.check0
+if (type(_0.use_rel_layer) == "boolean") then
+    use_rel_layer = _0.use_rel_layer
+elseif (type(_0.use_rel_layer) == "number") then
+    use_rel_layer = _0.use_rel_layer ~= 0
+end
+_0 = nil
+
+local ffi = require("ffi")
+pcall(ffi.cdef, [[ 
+    typedef struct {
+        double x, y, z;
+        double rw, rx, ry, rz;
+        unsigned int rot_mode;
+    } Param;
+    
+    typedef struct {
+        int type;
+        double x, y, z;
+        double rw, rx, ry, rz;
+        unsigned int rot_mode;
+        double scale;
+    } Parent;
+    
+    typedef struct {
+        double x, y, z;
+        double tx, ty, tz;
+        double ux, uy, uz;
+    } Cam;
+
+    int transform_cam(const Param *param, const Parent *parent, const Cam *input, Cam *output);
+]])
+
+---@class Param : ffi.cdata*
+local Param = ffi.typeof("Param")
+---@class Parent : ffi.cdata*
+local Parent = ffi.typeof("Parent")
+---@class Cam : ffi.cdata*
+local Cam = ffi.typeof("Cam")
+
+local dll_path = obj.getinfo("script_path") .. "CameraTransform_K.dll"
+local lib = ffi.load(dll_path)
+local cam = obj.getoption("camera_param")
+local parent = Parent(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 21, 1.0)
+local layer = use_rel_layer and math.max(obj.layer + parent_layer, 1) or math.max(parent_layer, 0)
+
+if (layer <= 0 or layer == obj.layer) then
+    if (type(_G["PARENT"]) == "table" and _G["PARENT"].type) then
+        parent = Parent(_G["PARENT"])
+    end
+else
+    parent.type = 1
+    parent.x = obj.getvalue("layer" .. layer .. ".x")
+    parent.y = obj.getvalue("layer" .. layer .. ".y")
+    parent.z = obj.getvalue("layer" .. layer .. ".z")
+    parent.rx = obj.getvalue("layer" .. layer .. ".rx")
+    parent.ry = obj.getvalue("layer" .. layer .. ".ry")
+    parent.rz = obj.getvalue("layer" .. layer .. ".rz")
+    parent.scale = obj.getvalue("layer" .. layer .. ".zoom") * 0.01
+end
+_G["PARENT"] = nil
+
+local param = Param(x, y, z, rw, rx, ry, rz, rot_mode)
+local input = Cam(cam.x, cam.y, cam.z, cam.tx, cam.ty, cam.tz, cam.ux, cam.uy, cam.uz)
+local output = Cam()
+
+if (lib.transform_cam(param, parent, input, output) ~= 0) then
+    error("Camera transformation failed.")
+end
+
+cam.x = output.x
+cam.y = output.y
+cam.z = output.z
+cam.tx = output.tx
+cam.ty = output.ty
+cam.tz = output.tz
+cam.ux = output.ux
+cam.uy = output.uy
+cam.uz = output.uz
+obj.setoption("camera_param", cam)
+
+
+@Parent
+--infomation:Parent${SCRIPT_NAME} ${VERSION}
+--label:${LABEL}
+--track@t4:X,-100000,100000,0,0.01
+--track@t5:Y,-100000,100000,0,0.01
+--track@t6:Z,-100000,100000,0,0.01
+--track0:W Rotation,-3600,3600,0,0.01
+--track1:X Rotation,-3600,3600,0,0.01
+--track2:Y Rotation,-3600,3600,0,0.01
+--track3:Z Rotation,-3600,3600,0,0.01
+--select@s0:Rotation Mode=21,Quaternion=0,Axis Angle=1,XYZ Euler=5,XZY Euler=7,YXZ Euler=11,YZX Euler=15,ZXY Euler=19,ZYX Euler=21
+--track@t7:Zoom,0,10000,100,0.001
+--value@_0:PI,{}
+
+_0 = _0 or {}
+local x = tonumber(_0.x) or t4 t4 = nil
+local y = tonumber(_0.y) or t5 t5 = nil
+local z = tonumber(_0.z) or t6 t6 = nil
+local rw = tonumber(_0.rw) or obj.track0
+local rx = tonumber(_0.rx) or obj.track1
+local ry = tonumber(_0.ry) or obj.track2
+local rz = tonumber(_0.rz) or obj.track3
+local rot_mode = tonumber(_0.rot_mode) or s0 s0 = nil
+local scale = (tonumber(_0.zoom) or t7) * 0.01 t7 = nil
+_0 = nil
+
+local name = obj.getoption("script_name", 1, true)
+if (name == "Transform@CameraTransform_K") then
+    _G["PARENT"] = {
+        type = 1,
+        x = x,
+        y = y,
+        z = z,
+        rw = rw,
+        rx = rx,
+        ry = ry,
+        rz = rz,
+        rot_mode = rot_mode,
+        scale = scale
+    }
+else
+    debug_print("Transform@CameraTransform_K not found.")
+end
+
+
+@Track
+--infomation:Track${SCRIPT_NAME} ${VERSION}
+--label:${LABEL}
+--track0:Target Layer,-100,100,1,1
+--check0:Use Relative Layer,0
+--track1:Influence,0,100,100,0.01
+--value@_0:PI,{}
+
+_0 = _0 or {}
+local target_layer = math.floor(tonumber(_0.target_layer) or obj.track0)
+local use_rel_layer = obj.check0
+if (type(_0.use_rel_layer) == "boolean") then
+    use_rel_layer = _0.use_rel_layer
+elseif (type(_0.use_rel_layer) == "number") then
+    use_rel_layer = _0.use_rel_layer ~= 0
+end
+local influence = (tonumber(_0.influence) or obj.track1) * 0.01
+_0 = nil
+
+local function lerp(a, b, t)
+  return a + (b - a) * t
+end
+
+local cam = obj.getoption("camera_param")
+local tx, ty, tz = 0.0, 0.0, 0.0
+local layer = math.max(use_rel_layer and obj.layer + target_layer or target_layer, 1)
+if (layer ~= obj.layer) then
+  tx = obj.getvalue("layer" .. layer .. ".x")
+  ty = obj.getvalue("layer" .. layer .. ".y")
+  tz = obj.getvalue("layer" .. layer .. ".z")
+end
+
+cam.tx = lerp(cam.tx, tx, influence)
+cam.ty = lerp(cam.ty, ty, influence)
+cam.tz = lerp(cam.tz, tz, influence)
+obj.setoption("camera_param", cam)

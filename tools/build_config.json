@@ -1,0 +1,6 @@
+{
+    "label": "カメラ効果",
+    "script_name": "@CameraTransform_K",
+    "template_dir": "scripts",
+    "build_dir": "build"
+}

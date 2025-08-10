@@ -1,0 +1,3 @@
+LIBRARY "CameraTransform_K"
+EXPORTS
+    transform_cam

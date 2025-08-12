@@ -30,7 +30,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ### 導入
 
-1.  同梱の`*.cam2`と`.*dll`を`%ProgramData%`内の`aviutl2\\Script`フォルダまたはその子フォルダに入れる．
+1.  同梱の`*.cam2`と`*.dll`を`%ProgramData%`内の`aviutl2\\Script`フォルダまたはその子フォルダに入れる．
 
 `beta4`以降では`aviutl2.exe`と同じ階層内の`data\\Script`フォルダ内でも可．
 
@@ -173,6 +173,9 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 LICENSEファイルに記載．
 
 ## Change Log
+
+- **v1.0.1**
+  - 改行コードをCRLFに変更．
 
 - **v1.0.0**
   - Release

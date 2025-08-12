@@ -1,14 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(CameraTransform_K VERSION 1.0.0 LANGUAGES CXX)
-
-# Set the project version.
-set(PROJECT_VERSION_SUFFIX "" CACHE STRING "Version suffix (e.g., alpha, beta, rc, etc.)")
-
-if(PROJECT_VERSION_SUFFIX)
-    set(FULL_VERSION "${PROJECT_VERSION} - ${PROJECT_VERSION_SUFFIX}")
-else()
-    set(FULL_VERSION "${PROJECT_VERSION}")
-endif()
+project(CameraTransform_K VERSION 1.0.1 LANGUAGES CXX)
 
 # Main target definition.
 add_library(${PROJECT_NAME} SHARED

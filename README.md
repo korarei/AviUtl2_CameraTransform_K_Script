@@ -19,7 +19,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta6](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta12](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 
 ## 導入・削除・更新
@@ -173,6 +173,9 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 LICENSEファイルに記載．
 
 ## Change Log
+
+- **v1.0.2**
+  - 構造体の名前が衝突する問題を回避．
 
 - **v1.0.1**
   - 改行コードをCRLFに変更．

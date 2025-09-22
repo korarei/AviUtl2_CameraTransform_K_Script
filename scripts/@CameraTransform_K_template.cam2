@@ -37,7 +37,7 @@ pcall(ffi.cdef, [[
         double x, y, z;
         double rw, rx, ry, rz;
         unsigned int rot_mode;
-    } Param;
+    } CAMTFKParam;
     
     typedef struct {
         int type;
@@ -45,23 +45,23 @@ pcall(ffi.cdef, [[
         double rw, rx, ry, rz;
         unsigned int rot_mode;
         double scale;
-    } Parent;
+    } CAMTFKParent;
     
     typedef struct {
         double x, y, z;
         double tx, ty, tz;
         double ux, uy, uz;
-    } Cam;
+    } CAMTFKCam;
 
-    int transform_cam(const Param *param, const Parent *parent, const Cam *input, Cam *output);
+    int CameraTransform_K(const CAMTFKParam *param, const CAMTFKParent *parent, const CAMTFKCam *input, CAMTFKCam *output);
 ]])
 
 ---@class Param : ffi.cdata*
-local Param = ffi.typeof("Param")
+local Param = ffi.typeof("CAMTFKParam")
 ---@class Parent : ffi.cdata*
-local Parent = ffi.typeof("Parent")
+local Parent = ffi.typeof("CAMTFKParent")
 ---@class Cam : ffi.cdata*
-local Cam = ffi.typeof("Cam")
+local Cam = ffi.typeof("CAMTFKCam")
 
 local dll_path = obj.getinfo("script_path") .. "CameraTransform_K.dll"
 local lib = ffi.load(dll_path)
@@ -89,7 +89,7 @@ local param = Param(x, y, z, rw, rx, ry, rz, rot_mode)
 local input = Cam(cam.x, cam.y, cam.z, cam.tx, cam.ty, cam.tz, cam.ux, cam.uy, cam.uz)
 local output = Cam()
 
-if (lib.transform_cam(param, parent, input, output) ~= 0) then
+if (lib.CameraTransform_K(param, parent, input, output) ~= 0) then
     error("Camera transformation failed.")
 end
 

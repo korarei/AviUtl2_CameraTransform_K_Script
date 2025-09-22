@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(CameraTransform_K VERSION 1.0.1 LANGUAGES CXX)
+project(CameraTransform_K VERSION 1.0.2 LANGUAGES CXX)
 
 # Main target definition.
 add_library(${PROJECT_NAME} SHARED

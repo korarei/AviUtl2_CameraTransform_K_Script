@@ -73,7 +73,7 @@ rotate(const std::vector<Vec3d> &input, const Param &param) noexcept {
 }
 
 extern "C" int
-transform_cam(const CParam *c_param, const CParent *c_parent, const CCam *c_input, CCam *c_output) {
+CameraTransform_K(const CParam *c_param, const CParent *c_parent, const CCam *c_input, CCam *c_output) {
     if (!c_param || !c_input || !c_parent || !c_output)
         return 1;
 

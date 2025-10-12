@@ -51,6 +51,7 @@ def main():
     replacements = {
         "LABEL": config["label"],
         "SCRIPT_NAME": config["script_name"],
+        "AUTHOR": config["author"],
         "VERSION": args.tag
     }
 

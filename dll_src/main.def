@@ -1,3 +1,2 @@
-LIBRARY "CameraTransform_K"
 EXPORTS
-    CameraTransform_K
+    GetScriptModuleTable @1

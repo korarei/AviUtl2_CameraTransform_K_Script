@@ -19,8 +19,10 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta12](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta15](https://spring-fragrance.mints.ne.jp/aviutl/)
 
+> [!CAUTION]
+> beta15以降必須．
 
 ## 導入・削除・更新
 
@@ -30,9 +32,9 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ### 導入
 
-1.  同梱の`*.cam2`と`*.dll`を`%ProgramData%`内の`aviutl2\\Script`フォルダまたはその子フォルダに入れる．
+1.  同梱の`*.cam2`と`*.mod2`を`%ProgramData%`内の`aviutl2/Script`フォルダまたはその子フォルダに入れる．
 
-`beta4`以降では`aviutl2.exe`と同じ階層内の`data\\Script`フォルダ内でも可．
+`beta4`以降では`aviutl2.exe`と同じ階層内の`data/Script`フォルダ内でも可．
 
 ### 削除
 
@@ -168,11 +170,148 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 `{}`は既に挿入済みであるため，PI項目では中身のみ記載する．
 
+## スクリプトモジュール
+
+### transform 関数
+
+このスクリプトのメイン関数．
+
+|位置|名前|型|説明|
+|:---|:---:|:---:|:---|
+|引数 #1|`param`|table|UI設定値|
+|引数 #2|`parent`|table|親オブジェクトの情報|
+|引数 #3|`input`|table|カメラの座標，目標座標，上方向ベクトル|
+|戻り値 #1|`output`|table|変換後の`input`|
+
+```lua
+local param = {
+  x = 0.0, -- カメラのX座標 (number)
+  y = 0.0, -- カメラのY座標 (number)
+  z = 0.0, -- カメラのZ座標 (number)
+  rw = 0.0, -- カメラのW回転 (number)
+  rx = 0.0, -- カメラのX回転 (number)
+  ry = 0.0, -- カメラのY回転 (number)
+  rz = 0.0, -- カメラのZ回転 (number)
+  rot_mode = 21 -- カメラの回転モード (number)
+}
+
+local parent = {
+  type = 0, -- 有効無効 (number)
+  x = 0.0, -- 根本のX座標 (number)
+  y = 0.0, -- 根本のY座標 (number)
+  z = 0.0, -- 根本のZ座標 (number)
+  rw = 0.0, -- 根本のW回転 (number)
+  rx = 0.0, -- 根本のX回転 (number)
+  ry = 0.0, -- 根本のY回転 (number)
+  rz = 0.0, -- 根本のZ回転 (number)
+  rot_mode = 21, -- 根本の回転モード (number)
+  scale = 1.0 -- 根本スケール値 (number)
+}
+
+obj.setoption("camera_param",cam)
+local input = {
+  x = cam.x,
+  y = cam.y,
+  z = cam.z,
+  tx = cam.tx,
+  ty = cam.ty,
+  tz = cam.tz,
+  ux = cam.ux,
+  uy = cam.uy,
+  uz = cam.uz
+}
+```
+
+### rotate 関数
+
+回転モードに応じて複数の3次元ベクトルを回転させる．
+
+`beta15`ではテーブル内テーブルや複数の値を返す関数の設定ができないため`key`に添え字をつける形にした．
+
+|位置|名前|型|説明|
+|:---|:---:|:---:|:---|
+|引数 #1|`rot`|table|設定値|
+|引数 #2|`vec`|table|3次元ベクトル|
+|…|…|…|同様に vec を追加可能|
+|戻り値 #1|`output`|table|回転後のベクトル群|
+
+```lua
+local rot = {
+  rw = 0.0, -- W回転 (number)
+  rx = 0.0, -- X回転 (number)
+  ry = 0.0, -- Y回転 (number)
+  rz = 0.0, -- Z回転 (number)
+  rot_mode = 21 -- 回転モード (number)
+}
+
+local vec = {
+  x = 0.0, -- X要素
+  y = 0.0, -- Y要素
+  z = 0.0 -- Z要素
+}
+
+local output = {
+  -- 1つ目のベクトルを回転させたもの
+  x0 = 0.0, 
+  y0 = 0.0,
+  z0 = 0.0,
+  -- 2つ目のベクトルを回転させたもの
+  x1 = 0.0, 
+  y1 = 0.0,
+  z1 = 0.0,
+  -- ...
+}
+```
+
+### encode_order 関数
+
+`rot_mode`で使う数字を計算する．
+
+|位置|名前|型|説明|
+|:---|:---:|:---:|:---|
+|引数 #1|`order`|string|回転順序|
+|戻り値 #1|`code`|number|エンコードされた回転順序|
+
+`order`は`"xyz"`のようにして使用する．
+
 ## License
 
 LICENSEファイルに記載．
 
+## Credits
+
+### AviUtl ExEdit2 Plugin SDK
+
+https://spring-fragrance.mints.ne.jp/aviutl/
+
+---
+
+The MIT License
+
+Copyright (c) 2025 Kenkun
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 ## Change Log
+- **v1.0.3**
+  - `.mod2`化
+  - `Parent`でアンカーによる仮想的な親オブジェクトを表示するように変更．
 
 - **v1.0.2**
   - 構造体の名前が衝突する問題を回避．

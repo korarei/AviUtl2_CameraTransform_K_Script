@@ -1,19 +1,36 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(CameraTransform_K VERSION 1.0.2 LANGUAGES CXX)
+
+set(VERSION "0.1.0" CACHE STRING "Project version")
+project(CameraTransform_K VERSION ${VERSION} LANGUAGES CXX)
+
+# Path settings.
+set(SDK_DIR "${CMAKE_SOURCE_DIR}/aviutl2_sdk")
 
 # Main target definition.
 add_library(${PROJECT_NAME} SHARED
+    main.def
     main.cpp
+    transform.cpp
 )
 
-# Def file specification.
+# Include directories.
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${SDK_DIR}
+)
+
+# Output settings.
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/main.def"
     PREFIX ""
+    SUFFIX ".mod2"
 )
 
 # C++ version specification.
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+
+# Definitions.
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    VERSION=L"${VERSION}"
+)
 
 # Compiler Dependent Options.
 if (MSVC)
@@ -42,26 +59,5 @@ if (MSVC)
     # Runtime library switching.
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-    )
-# Functionality has not been confirmed.
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-
-        # Release-only
-        $<$<CONFIG:Release>:-O3>
-        $<$<CONFIG:Release>:-ffunction-sections>
-        $<$<CONFIG:Release>:-fdata-sections>
-
-        # Debug-only
-        $<$<CONFIG:Debug>:-O0>
-        $<$<CONFIG:Debug>:-g>
-    )
-
-    target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:-Wl,--gc-sections>
-        $<$<CONFIG:Debug>:-g>
     )
 endif()

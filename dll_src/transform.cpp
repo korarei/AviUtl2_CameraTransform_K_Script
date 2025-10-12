@@ -4,11 +4,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdint>
-#include <vector>
 
 #include "quaternion.hpp"
-#include "structs.hpp"
-#include "vector_3d.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -31,20 +28,20 @@ decode_ord(unsigned int mode) noexcept {
 }
 
 [[nodiscard]] inline static constexpr Mat3d
-make_rm(const Param &param) noexcept {
-    const auto ord = decode_ord(param.rot_mode);
-    return Mat3d::rotation(to_rad(param.rot[ord[2]]), 1.0, ord[2])
-         * Mat3d::rotation(to_rad(param.rot[ord[1]]), 1.0, ord[1])
-         * Mat3d::rotation(to_rad(param.rot[ord[0]]), 1.0, ord[0]);
+make_rm(const Rot &rot) noexcept {
+    const auto ord = decode_ord(rot.rot_mode);
+    return Mat3d::rotation(to_rad(rot.xyz[ord[2]]), 1.0, ord[2])
+         * Mat3d::rotation(to_rad(rot.xyz[ord[1]]), 1.0, ord[1])
+         * Mat3d::rotation(to_rad(rot.xyz[ord[0]]), 1.0, ord[0]);
 }
 
-[[nodiscard]] static constexpr std::vector<Vec3d>
-rotate(const std::vector<Vec3d> &input, const Param &param) noexcept {
+std::vector<Vec3d>
+Transform::rotate(const std::vector<Vec3d> &input, const Rot &rot) noexcept {
     std::vector<Vec3d> output;
     output.reserve(input.size());
 
-    if (param.rot_mode == 0) {
-        const auto q = Quaternion(param.rw, param.rot).normalize();
+    if (rot.rot_mode == 0) {
+        const auto q = Quaternion(rot.w, rot.xyz).normalize();
         const auto q_inv = q.conjugate();
 
         for (const auto &v : input) {
@@ -54,18 +51,18 @@ rotate(const std::vector<Vec3d> &input, const Param &param) noexcept {
         }
 
         return output;
-    } else if (param.rot_mode == 1) {
-        const double t = to_rad(param.rw);
+    } else if (rot.rot_mode == 1) {
+        const double t = to_rad(rot.w);
         const double cos = std::cos(t);
         const double sin = std::sin(t);
-        const auto n = param.rot.normalize();
+        const auto n = rot.xyz.normalize();
 
         for (const auto &v : input)
             output.emplace_back(cos * v + sin * n.cross(v) + (1.0 - cos) * n.dot(v) * n);
 
         return output;
-    } else if (param.rot_mode >= 5 && param.rot_mode <= 21) {
-        const auto rm = make_rm(param);
+    } else if (rot.rot_mode >= 5 && rot.rot_mode <= 21) {
+        const auto rm = make_rm(rot);
         for (const auto &v : input) output.emplace_back(rm * v);
 
         return output;
@@ -75,10 +72,11 @@ rotate(const std::vector<Vec3d> &input, const Param &param) noexcept {
 }
 
 int
-Transform::transform(const Param &param, const Parent &parent, const Cam &input, Cam &output) noexcept {
+Transform::transform(const Param &param, const Parent &parent, const Cam &input,
+                     Cam &output) noexcept {
     Vec3d g_pos, g_target, g_up;
 
-    const auto l_pose = rotate({input.target - input.pos, input.up}, param);
+    const auto l_pose = rotate({input.target - input.pos, input.up}, param.rot);
     const auto l_pos = param.pos + input.pos;
 
     switch (parent.type) {
@@ -89,7 +87,7 @@ Transform::transform(const Param &param, const Parent &parent, const Cam &input,
             break;
         }
         case 1: {
-            const auto g_pose = rotate({l_pos, l_pose[0], l_pose[1]}, parent.param);
+            const auto g_pose = rotate({l_pos, l_pose[0], l_pose[1]}, parent.param.rot);
             g_pos = parent.param.pos + g_pose[0] * parent.scale;
             g_target = g_pos + g_pose[1];
             g_up = g_pose[2];

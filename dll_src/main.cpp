@@ -1,4 +1,6 @@
+#include <cstddef>
 #include <iterator>
+#include <string>
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
@@ -20,6 +22,7 @@ transform(SCRIPT_MODULE_PARAM *p) {
         p->set_error("Incorrect number of arguments");
         return;
     }
+
     constexpr int param_idx = 0;
     constexpr int parent_idx = 1;
     constexpr int input_idx = 2;
@@ -56,7 +59,53 @@ transform(SCRIPT_MODULE_PARAM *p) {
 }
 
 void
-rotate(SCRIPT_MODULE_PARAM *p) {}
+rotate(SCRIPT_MODULE_PARAM *p) {
+    auto n = p->get_param_num();
+    if (n < 2) {
+        p->set_error("Incorrect number of arguments");
+        return;
+    }
+
+    constexpr int rot_idx = 0;
+
+    auto to_num = [&](int idx, const char *key) { return p->get_param_table_double(idx, key); };
+    auto to_int = [&](int idx, const char *key) { return p->get_param_table_int(idx, key); };
+
+    Rot rot(to_num(rot_idx, "rw"), to_num(rot_idx, "rx"), to_num(rot_idx, "ry"),
+            to_num(rot_idx, "rz"), to_int(rot_idx, "rot_mode"));
+
+    std::vector<Vec3d> input;
+    for (int i = 1; i < n; ++i) input.emplace_back(to_num(i, "x"), to_num(i, "y"), to_num(i, "z"));
+
+    auto output = Transform::rotate(input, rot);
+
+    std::size_t count = output.size();
+    std::size_t size = count * 3;
+    std::vector<double> vals(size);
+    std::vector<std::string> keys(size);
+    std::vector<LPCSTR> ckeys(size);
+
+    for (std::size_t i = 0; i < count; ++i) {
+        std::size_t x = i * 3;
+        std::size_t y = x + 1;
+        std::size_t z = x + 2;
+        std::string idx = std::to_string(i);
+
+        vals[x] = output[i].get_x();
+        vals[y] = output[i].get_y();
+        vals[z] = output[i].get_z();
+
+        keys[x] = "x" + idx;
+        keys[y] = "y" + idx;
+        keys[z] = "z" + idx;
+
+        ckeys[x] = keys[x].c_str();
+        ckeys[y] = keys[y].c_str();
+        ckeys[z] = keys[z].c_str();
+    }
+
+    p->push_result_table_double(ckeys.data(), vals.data(), static_cast<int>(size));
+}
 
 static SCRIPT_MODULE_FUNCTION functions[] = {
         {L"transform", transform}, {L"rotate", rotate}, {nullptr}};

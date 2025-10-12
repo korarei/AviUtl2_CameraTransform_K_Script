@@ -36,54 +36,6 @@ elseif (type(_0.use_rel_layer) == "number") then
 end
 _0 = nil
 
-local Parent = {}
-Parent.__index = Parent
-function Parent:new(type_, x_, y_, z_, rw_, rx_, ry_, rz_, rot_mode_, scale_)
-    local self = setmetatable({}, self)
-    self.type = type_ or 0
-    self.x = x_ or 0.0
-    self.y = y_ or 0.0
-    self.z = z_ or 0.0
-    self.rw = rw_ or 0.0
-    self.rx = rx_ or 0.0
-    self.ry = ry_ or 0.0
-    self.rz = rz_ or 0.0
-    self.rot_mode = rot_mode_ or 21
-    self.scale = scale_ or 1.0
-    return self
-end
-
-local Param = {}
-Param.__index = Param
-function Param:new(x_, y_, z_, rw_, rx_, ry_, rz_, rot_mode_)
-    local self = setmetatable({}, self)
-    self.x = x_ or 0.0
-    self.y = y_ or 0.0
-    self.z = z_ or 0.0
-    self.rw = rw_ or 0.0
-    self.rx = rx_ or 0.0
-    self.ry = ry_ or 0.0
-    self.rz = rz_ or 0.0
-    self.rot_mode = rot_mode_ or 21
-    return self
-end
-
-local Cam = {}
-Cam.__index = Cam
-function Cam:new(x_, y_, z_, tx_, ty_, tz_, ux_, uy_, uz_)
-    local self = setmetatable({}, self)
-    self.x = x_ or 0.0
-    self.y = y_ or 0.0
-    self.z = z_ or 0.0
-    self.tx = tx_ or 0.0
-    self.ty = ty_ or 0.0
-    self.tz = tz_ or 0.0
-    self.ux = ux_ or 0.0
-    self.uy = uy_ or 1.0
-    self.uz = uz_ or 0.0
-    return self
-end
-
 local lib = obj.module("CameraTransform_K")
 local cam = obj.getoption("camera_param")
 
@@ -168,6 +120,11 @@ obj.setoption("camera_param", cam)
 --track@t7:Zoom,0,10000,100,0.001
 --value@_0:PI,{}
 
+if (obj.getinfo("version") < 2001500) then
+    debug_print("AviUtl ExEdit2 beta15 or later is required.")
+    return
+end
+
 _0 = _0 or {}
 local x = tonumber(_0.x) or t4 t4 = nil
 local y = tonumber(_0.y) or t5 t5 = nil
@@ -179,6 +136,48 @@ local rz = tonumber(_0.rz) or obj.track3
 local rot_mode = tonumber(_0.rot_mode) or s0 s0 = nil
 local scale = (tonumber(_0.zoom) or t7) * 0.01 t7 = nil
 _0 = nil
+
+local Vec = {}
+Vec.__index = Vec
+function Vec:new(x_, y_, z_)
+    local self = setmetatable({}, self)
+    self.x = x_
+    self.y = y_
+    self.z = z_
+    return self
+end
+
+function Vec.__add(a, b)
+    return Vec:new(a.x + b.x, a.y + b.y, a.z + b.z)
+end
+
+local rot = {
+    rw = rw,
+    rx = rx,
+    ry = ry,
+    rz = rz,
+    rot_mode = rot_mode
+}
+
+local elem = math.min(obj.screen_w, obj.screen_h) * 0.25 * scale
+local vx = Vec:new(elem, 0.0, 0.0)
+local vy = Vec:new(0.0, elem, 0.0)
+local vz = Vec:new(0.0, 0.0, elem)
+
+local cam = obj.getoption("camera_param")
+local pos = Vec:new(x - cam.x, y - cam.y, z - cam.z)
+local col = Vec:new(0xf05050, 0x208020, 0x5050f0)
+
+local lib = obj.module("CameraTransform_K")
+local output = lib.rotate(rot, vx, vy, vz)
+
+vx = Vec:new(output.x0, output.y0, output.z0) + pos
+vy = Vec:new(output.x1, output.y1, output.z1) + pos
+vz = Vec:new(output.x2, output.y2, output.z2) + pos
+
+obj.setanchor({pos.x, pos.y, pos.z, vx.x, vx.y, vx.z}, 2, "line", "xyz", "color", col.x)
+obj.setanchor({pos.x, pos.y, pos.z, vy.x, vy.y, vy.z}, 2, "line", "xyz", "color", col.y)
+obj.setanchor({pos.x, pos.y, pos.z, vz.x, vz.y, vz.z}, 2, "line", "xyz", "color", col.z)
 
 local name = obj.getoption("script_name", 1, true)
 if (name == "Transform@CameraTransform_K") then

@@ -4,15 +4,22 @@
 
 using Vec3d = Vec3<double>;
 
-struct Param {
-    Vec3d pos;
-    double rw;
-    Vec3d rot;
+struct Rot {
+    double w;
+    Vec3d xyz;
     unsigned int rot_mode;
 
-    constexpr Param(double x, double y, double z, double rw_, double rx, double ry, double rz,
-                    int rot_mode_) noexcept :
-        pos(x, y, z), rw(rw_), rot(rx, ry, rz), rot_mode(static_cast<unsigned int>(rot_mode_)) {}
+    constexpr Rot(double rw, double rx, double ry, double rz, unsigned int rot_mode_) noexcept :
+        w(rw), xyz(rx, ry, rz), rot_mode(rot_mode_) {}
+};
+
+struct Param {
+    Vec3d pos;
+    Rot rot;
+
+    constexpr Param(double x, double y, double z, double rw, double rx, double ry, double rz,
+                    unsigned int rot_mode) noexcept :
+        pos(x, y, z), rot(rw, rx, ry, rz, rot_mode) {}
 };
 
 struct Parent {

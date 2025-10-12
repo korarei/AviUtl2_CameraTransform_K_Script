@@ -1,4 +1,5 @@
 {
+    "author": "Korarei",
     "label": "カメラ効果",
     "script_name": "@CameraTransform_K",
     "template_dir": "scripts",

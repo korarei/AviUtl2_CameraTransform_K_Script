@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstring>
 #include <iterator>
 #include <string>
 
@@ -107,8 +108,60 @@ rotate(SCRIPT_MODULE_PARAM *p) {
     p->push_result_table_double(ckeys.data(), vals.data(), static_cast<int>(size));
 }
 
+void
+encode_order(SCRIPT_MODULE_PARAM *p) {
+    auto n = p->get_param_num();
+    if (n != 1) {
+        p->set_error("Incorrect number of arguments");
+        return;
+    }
+
+    auto ord = p->get_param_string(0);
+    if (!ord) {
+        p->set_error("Failed to retrieve the argument");
+        return;
+    }
+
+    std::size_t len = std::strlen(ord);
+    if (len != 3) {
+        p->set_error("Order string must be 3 characters long");
+        return;
+    }
+
+    auto char_to_num = [](char c) -> int {
+        switch (c) {
+            case 'x':
+                return 0;
+            case 'y':
+                return 1;
+            case 'z':
+                return 2;
+            default:
+                return -1;
+        }
+    };
+
+    int o1 = char_to_num(ord[0]);
+    int o2 = char_to_num(ord[1]);
+    int o3 = char_to_num(ord[2]);
+
+    if (o1 * o2 * o3 < 0) {
+        p->set_error("Order string must only contain 'x', 'y', or 'z'");
+        return;
+    }
+
+    if (o1 == o2 || o2 == o3 || o3 == o1) {
+        p->set_error("Order string must not contain duplicate characters");
+        return;
+    }
+
+    int code = o1 * 9 + o2 * 3 + o3;
+
+    p->push_result_int(code);
+}
+
 static SCRIPT_MODULE_FUNCTION functions[] = {
-        {L"transform", transform}, {L"rotate", rotate}, {nullptr}};
+        {L"transform", transform}, {L"rotate", rotate}, {L"encode_order", encode_order}, {nullptr}};
 
 static SCRIPT_MODULE_TABLE script_module_table = {L"CameraTransform_K v" VERSION L" by Korarei",
                                                   functions};

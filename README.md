@@ -65,7 +65,11 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 親オブジェクトの位置，回転，拡大率によってカメラの座標系を移動させる．
 
-- Use Relative Layer: `Parent Layer`で指定するレイヤー番号を相対値にする．
+- Layer Reference: `Parent Layer`で指定するレイヤー番号の参照方法を設定する．
+
+  - Absolute: 絶対指定
+
+  - Relative: 相対指定
 
 - PI: パラメータインジェクション．
 
@@ -80,7 +84,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
   rz = 0.0, -- カメラのZ回転 (number)
   rot_mode = 21, -- カメラの回転モード (number)
   parent_layer = 0, -- 親オブジェクトのレイヤー (number)
-  use_rel_layer = false -- 親オブジェクトのレイヤーを相対値で設定するかどうか (boolean or number)
+  layer_ref = 0 -- 親オブジェクトのレイヤーを相対値で設定するかどうか (number)
 }
 ```
 
@@ -154,7 +158,11 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 - Target Layer: 目標オブジェクトのレイヤー．
 
-- Use Relative Layer: `Target Layer`で指定するレイヤー番号を相対値にする．
+- Layer Reference: `Target Layer`で指定するレイヤー番号の参照方法を設定する．
+
+  - Absolute: 絶対指定
+
+  - Relative: 相対指定
 
 - Influence: 影響度．
 
@@ -163,7 +171,7 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 ```lua
 {
   target_layer = 1, -- 目標オブジェクトのレイヤー (number)
-  use_rel_layer = false, -- 目標オブジェクトのレイヤーを相対値で設定するかどうか (boolean or number)
+  layer_ref = 0 -- 親オブジェクトのレイヤーを相対値で設定するかどうか (number)
   influence = 100.0 -- 影響度 (number)
 }
 ```
@@ -208,7 +216,7 @@ local parent = {
   scale = 1.0 -- 根本スケール値 (number)
 }
 
-obj.setoption("camera_param",cam)
+local cam = obj.getoption("camera_param")
 local input = {
   x = cam.x,
   y = cam.y,
@@ -226,14 +234,13 @@ local input = {
 
 回転モードに応じて複数の3次元ベクトルを回転させる．
 
-`beta15`ではテーブル内テーブルや複数の値を返す関数の設定ができないため`key`に添え字をつける形にした．
-
 |位置|名前|型|説明|
 |:---|:---:|:---:|:---|
 |引数 #1|`rot`|table|設定値|
-|引数 #2|`vec`|table|3次元ベクトル|
-|…|…|…|同様に vec を追加可能|
-|戻り値 #1|`output`|table|回転後のベクトル群|
+|引数 #2|`vec_i`|table|3次元ベクトル|
+|…|…|…|同様に`vec_i`を追加可能|
+|戻り値 #1|`vec_o`|table|回転後の3次元ベクトル|
+|…|…|…|引数に加えた`vec_i`の数だけ順に回転後のベクトルが返る|
 
 ```lua
 local rot = {
@@ -248,18 +255,6 @@ local vec = {
   x = 0.0, -- X要素
   y = 0.0, -- Y要素
   z = 0.0 -- Z要素
-}
-
-local output = {
-  -- 1つ目のベクトルを回転させたもの
-  x0 = 0.0, 
-  y0 = 0.0,
-  z0 = 0.0,
-  -- 2つ目のベクトルを回転させたもの
-  x1 = 0.0, 
-  y1 = 0.0,
-  z1 = 0.0,
-  -- ...
 }
 ```
 
@@ -309,6 +304,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ## Change Log
+- **v1.0.4**
+  - `rotate`関数を複数値を返す関数に変更．
+  - `Transform`と`Track`における`Use Relative Layer`チェックボックスを`Layer Reference`リストに変更 (破壊的)
+
 - **v1.0.3**
   - `.mod2`化
   - `Parent`でアンカーによる仮想的な親オブジェクトを表示するように変更．

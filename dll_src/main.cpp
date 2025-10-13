@@ -80,32 +80,10 @@ rotate(SCRIPT_MODULE_PARAM *p) {
 
     auto output = Transform::rotate(input, rot);
 
-    std::size_t count = output.size();
-    std::size_t size = count * 3;
-    std::vector<double> vals(size);
-    std::vector<std::string> keys(size);
-    std::vector<LPCSTR> ckeys(size);
+    LPCSTR keys[] = {"x", "y", "z"};
+    int size = std::size(keys);
 
-    for (std::size_t i = 0; i < count; ++i) {
-        std::size_t x = i * 3;
-        std::size_t y = x + 1;
-        std::size_t z = x + 2;
-        std::string idx = std::to_string(i);
-
-        vals[x] = output[i].get_x();
-        vals[y] = output[i].get_y();
-        vals[z] = output[i].get_z();
-
-        keys[x] = "x" + idx;
-        keys[y] = "y" + idx;
-        keys[z] = "z" + idx;
-
-        ckeys[x] = keys[x].c_str();
-        ckeys[y] = keys[y].c_str();
-        ckeys[z] = keys[z].c_str();
-    }
-
-    p->push_result_table_double(ckeys.data(), vals.data(), static_cast<int>(size));
+    for (auto &v : output) p->push_result_table_double(keys, v.ptr(), size);
 }
 
 void

@@ -10,7 +10,7 @@
 --track6:Z Rotation,-3600,3600,0,0.01
 --select@s0:Rotation Mode=21,Quaternion=0,Axis Angle=1,XYZ Euler=5,XZY Euler=7,YXZ Euler=11,YZX Euler=15,ZXY Euler=19,ZYX Euler=21
 --track7:Parent Layer,-100,100,0,1
---check0:Use Relative Layer,0
+--select@s1:Layer Reference,Absolute=0,Relative=1
 --value@_0:PI,{}
 
 if (obj.getinfo("version") < 2001500) then
@@ -28,18 +28,13 @@ local ry = tonumber(_0.ry) or obj.track5
 local rz = tonumber(_0.rz) or obj.track6
 local rot_mode = tonumber(_0.rot_mode) or s0 s0 = nil
 local parent_layer = math.floor(tonumber(_0.parent_layer) or obj.track7)
-local use_rel_layer = obj.check0
-if (type(_0.use_rel_layer) == "boolean") then
-    use_rel_layer = _0.use_rel_layer
-elseif (type(_0.use_rel_layer) == "number") then
-    use_rel_layer = _0.use_rel_layer ~= 0
-end
+local layer_ref = tonumber(_0.layer_ref) or s1 s1 = nil
 _0 = nil
 
 local lib = obj.module("CameraTransform_K")
 local cam = obj.getoption("camera_param")
 
-local layer = use_rel_layer and math.max(obj.layer + parent_layer, 1) or math.max(parent_layer, 0)
+local layer = layer_ref == 1 and math.max(obj.layer + parent_layer, 1) or math.max(parent_layer, 0)
 local parent = {
     type = 0,
     x = 0.0,
@@ -160,24 +155,21 @@ local rot = {
 }
 
 local elem = math.min(obj.screen_w, obj.screen_h) * 0.25 * scale
-local vx = Vec:new(elem, 0.0, 0.0)
-local vy = Vec:new(0.0, elem, 0.0)
-local vz = Vec:new(0.0, 0.0, elem)
+local dx = Vec:new(elem, 0.0, 0.0)
+local dy = Vec:new(0.0, elem, 0.0)
+local dz = Vec:new(0.0, 0.0, elem)
 
 local cam = obj.getoption("camera_param")
 local pos = Vec:new(x - cam.x, y - cam.y, z - cam.z)
-local col = Vec:new(0xf05050, 0x208020, 0x5050f0)
+local col = {0xf05050, 0x208020, 0x5050f0}
 
 local lib = obj.module("CameraTransform_K")
-local output = lib.rotate(rot, vx, vy, vz)
+dx, dy, dz = lib.rotate(rot, dx, dy, dz)
 
-vx = Vec:new(output.x0, output.y0, output.z0) + pos
-vy = Vec:new(output.x1, output.y1, output.z1) + pos
-vz = Vec:new(output.x2, output.y2, output.z2) + pos
-
-obj.setanchor({pos.x, pos.y, pos.z, vx.x, vx.y, vx.z}, 2, "line", "xyz", "color", col.x)
-obj.setanchor({pos.x, pos.y, pos.z, vy.x, vy.y, vy.z}, 2, "line", "xyz", "color", col.y)
-obj.setanchor({pos.x, pos.y, pos.z, vz.x, vz.y, vz.z}, 2, "line", "xyz", "color", col.z)
+for i, v in ipairs({dx, dy, dz}) do
+    local t = v + pos
+    obj.setanchor({pos.x, pos.y, pos.z, t.x, t.y, t.z}, 2, "line", "xyz", "color", col[i])
+end
 
 local name = obj.getoption("script_name", 1, true)
 if (name == "Transform@CameraTransform_K") then
@@ -202,18 +194,18 @@ end
 --infomation:Track${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
 --label:${LABEL}
 --track0:Target Layer,-100,100,1,1
---check0:Use Relative Layer,0
+--select@s0:Layer Reference,Absolute=0,Relative=1
 --track1:Influence,0,100,100,0.01
 --value@_0:PI,{}
 
+if (obj.getinfo("version") < 2001500) then
+    debug_print("AviUtl ExEdit2 beta15 or later is required.")
+    return
+end
+
 _0 = _0 or {}
 local target_layer = math.floor(tonumber(_0.target_layer) or obj.track0)
-local use_rel_layer = obj.check0
-if (type(_0.use_rel_layer) == "boolean") then
-    use_rel_layer = _0.use_rel_layer
-elseif (type(_0.use_rel_layer) == "number") then
-    use_rel_layer = _0.use_rel_layer ~= 0
-end
+local layer_ref = tonumber(_0.layer_ref) or s0 s0 = nil
 local influence = (tonumber(_0.influence) or obj.track1) * 0.01
 _0 = nil
 
@@ -223,7 +215,7 @@ end
 
 local cam = obj.getoption("camera_param")
 local tx, ty, tz = 0.0, 0.0, 0.0
-local layer = math.max(use_rel_layer and obj.layer + target_layer or target_layer, 1)
+local layer = math.max(layer_ref == 1 and obj.layer + target_layer or target_layer, 1)
 if (layer ~= obj.layer and obj.getvalue("layer" .. layer .. ".x")) then
   tx = obj.getvalue("layer" .. layer .. ".x")
   ty = obj.getvalue("layer" .. layer .. ".y")

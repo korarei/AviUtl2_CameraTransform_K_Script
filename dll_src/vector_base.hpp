@@ -43,6 +43,10 @@ public:
     [[nodiscard]] constexpr ConstIterator end() const noexcept { return data.end(); }
     [[nodiscard]] constexpr ConstIterator cend() const noexcept { return data.cend(); }
 
+    // Data pointer access.
+    [[nodiscard]] constexpr T *ptr() noexcept { return data.data(); }
+    [[nodiscard]] constexpr const T *ptr() const noexcept { return data.data(); }
+
     // Size and capacity.
     [[nodiscard]] static constexpr std::size_t size() noexcept { return N; }
 

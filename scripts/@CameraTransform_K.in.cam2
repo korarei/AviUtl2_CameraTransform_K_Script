@@ -1,5 +1,5 @@
 @Transform
---infomation:Transform${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
+--information:Transform${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
 --label:${LABEL}
 --track0:X,-100000,100000,0,0.01
 --track1:Y,-100000,100000,0,0.01
@@ -12,11 +12,6 @@
 --track7:Parent Layer,-100,100,0,1
 --select@s1:Layer Reference,Absolute=0,Relative=1
 --value@_0:PI,{}
-
-if (obj.getinfo("version") < 2001500) then
-    debug_print("AviUtl ExEdit2 beta15 or later is required.")
-    return
-end
 
 _0 = _0 or {}
 local x = tonumber(_0.x) or obj.track0
@@ -31,6 +26,7 @@ local parent_layer = math.floor(tonumber(_0.parent_layer) or obj.track7)
 local layer_ref = tonumber(_0.layer_ref) or s1 s1 = nil
 _0 = nil
 
+local gv = obj.getvalue
 local lib = obj.module("CameraTransform_K")
 local cam = obj.getoption("camera_param")
 
@@ -52,15 +48,15 @@ if (layer <= 0 or layer == obj.layer) then
     if (type(_G["PARENT"]) == "table" and _G["PARENT"].type) then
         parent = _G["PARENT"]
     end
-elseif (obj.getvalue("layer" .. layer .. ".x")) then
+elseif (gv("layer" .. layer)) then
     parent.type = 1
-    parent.x = obj.getvalue("layer" .. layer .. ".x")
-    parent.y = obj.getvalue("layer" .. layer .. ".y")
-    parent.z = obj.getvalue("layer" .. layer .. ".z")
-    parent.rx = obj.getvalue("layer" .. layer .. ".rx")
-    parent.ry = obj.getvalue("layer" .. layer .. ".ry")
-    parent.rz = obj.getvalue("layer" .. layer .. ".rz")
-    parent.scale = obj.getvalue("layer" .. layer .. ".zoom") * 0.01
+    parent.x = gv("layer" .. layer .. ".x") or 0.0
+    parent.y = gv("layer" .. layer .. ".y") or 0.0
+    parent.z = gv("layer" .. layer .. ".z") or 0.0
+    parent.rx = gv("layer" .. layer .. ".rx") or 0.0
+    parent.ry = gv("layer" .. layer .. ".ry") or 0.0
+    parent.rz = gv("layer" .. layer .. ".rz") or 0.0
+    parent.scale = (gv("layer" .. layer .. ".zoom") or 100.0) * 0.01
 end
 _G["PARENT"] = nil
 
@@ -102,7 +98,7 @@ obj.setoption("camera_param", cam)
 
 
 @Parent
---infomation:Parent${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
+--information:Parent${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
 --label:${LABEL}
 --track0:X,-100000,100000,0,0.01
 --track1:Y,-100000,100000,0,0.01
@@ -114,11 +110,6 @@ obj.setoption("camera_param", cam)
 --select@s0:Rotation Mode=21,Quaternion=0,Axis Angle=1,XYZ Euler=5,XZY Euler=7,YXZ Euler=11,YZX Euler=15,ZXY Euler=19,ZYX Euler=21
 --track7:Zoom,0,10000,100,0.001
 --value@_0:PI,{}
-
-if (obj.getinfo("version") < 2001500) then
-    debug_print("AviUtl ExEdit2 beta15 or later is required.")
-    return
-end
 
 _0 = _0 or {}
 local x = tonumber(_0.x) or obj.track0
@@ -135,11 +126,7 @@ _0 = nil
 local Vec = {}
 Vec.__index = Vec
 function Vec:new(x_, y_, z_)
-    local self = setmetatable({}, self)
-    self.x = x_
-    self.y = y_
-    self.z = z_
-    return self
+     return setmetatable({x = x_, y = y_, z = z_}, self)
 end
 
 function Vec.__add(a, b)
@@ -191,23 +178,20 @@ end
 
 
 @Track
---infomation:Track${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
+--information:Track${SCRIPT_NAME} ${VERSION} by ${AUTHOR}
 --label:${LABEL}
 --track0:Target Layer,-100,100,1,1
 --select@s0:Layer Reference,Absolute=0,Relative=1
 --track1:Influence,0,100,100,0.01
 --value@_0:PI,{}
 
-if (obj.getinfo("version") < 2001500) then
-    debug_print("AviUtl ExEdit2 beta15 or later is required.")
-    return
-end
-
 _0 = _0 or {}
 local target_layer = math.floor(tonumber(_0.target_layer) or obj.track0)
 local layer_ref = tonumber(_0.layer_ref) or s0 s0 = nil
 local influence = (tonumber(_0.influence) or obj.track1) * 0.01
 _0 = nil
+
+local gv = obj.getvalue
 
 local function lerp(a, b, t)
   return a + (b - a) * t
@@ -216,10 +200,10 @@ end
 local cam = obj.getoption("camera_param")
 local tx, ty, tz = 0.0, 0.0, 0.0
 local layer = math.max(layer_ref == 1 and obj.layer + target_layer or target_layer, 1)
-if (layer ~= obj.layer and obj.getvalue("layer" .. layer .. ".x")) then
-  tx = obj.getvalue("layer" .. layer .. ".x")
-  ty = obj.getvalue("layer" .. layer .. ".y")
-  tz = obj.getvalue("layer" .. layer .. ".z")
+if (layer ~= obj.layer and gv("layer" .. layer)) then
+  tx = gv("layer" .. layer .. ".x")
+  ty = gv("layer" .. layer .. ".y")
+  tz = gv("layer" .. layer .. ".z")
 end
 
 cam.tx = lerp(cam.tx, tx, influence)

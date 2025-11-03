@@ -145,6 +145,14 @@ static SCRIPT_MODULE_TABLE script_module_table = {L"CameraTransform_K v" VERSION
                                                   functions};
 
 extern "C" SCRIPT_MODULE_TABLE *
-GetScriptModuleTable(void) {
+GetScriptModuleTable() {
     return &script_module_table;
+}
+
+extern "C" bool
+InitializePlugin(DWORD v) {
+    if (v < 2001600)
+        return false;
+    else
+        return true;
 }

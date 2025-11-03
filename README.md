@@ -19,10 +19,10 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta15](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta18b](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 > [!CAUTION]
-> beta15以降必須．
+> beta16以降必須．
 
 ## 導入・削除・更新
 
@@ -32,9 +32,9 @@ AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
 
 ### 導入
 
-1.  同梱の`*.cam2`と`*.mod2`を`%ProgramData%`内の`aviutl2/Script`フォルダまたはその子フォルダに入れる．
+1.  同梱の`*.cam2`と`*.mod2`を`%ProgramData%`内の`aviutl2\Script`フォルダまたはその子フォルダに入れる．
 
-`beta4`以降では`aviutl2.exe`と同じ階層内の`data/Script`フォルダ内でも可．
+`beta4`以降では`aviutl2.exe`と同じ階層内の`data\Script`フォルダ内でも可．
 
 ### 削除
 
@@ -304,6 +304,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ## Change Log
+- **v1.0.5**
+  - オブジェクトの存在判定方法を変更．
+
 - **v1.0.4**
   - `rotate`関数を複数値を返す関数に変更．
   - `Transform`と`Track`における`Use Relative Layer`チェックボックスを`Layer Reference`リストに変更 (破壊的)

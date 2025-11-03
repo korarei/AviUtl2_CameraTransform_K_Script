@@ -1,2 +1,3 @@
 EXPORTS
-    GetScriptModuleTable @1
+    InitializePlugin
+    GetScriptModuleTable

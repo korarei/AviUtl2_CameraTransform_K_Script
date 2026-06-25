@@ -79,7 +79,6 @@ include(GenerateExportHeader)
 
 add_library(${PROJECT_NAME} SHARED
     main.cpp
-    aviutl.cpp
     transform.cpp
 )
 

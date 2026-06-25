@@ -1,63 +1,102 @@
 cmake_minimum_required(VERSION 3.20.0)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(VERSION "0.1.0" CACHE STRING "Project version")
+set(REQUIRES_AVIUTL2 "2000100" CACHE STRING "Required AviUtl2 version")
+
+if(NOT REQUIRES_AVIUTL2 MATCHES "^[0-9]+$")
+    message(FATAL_ERROR "'REQUIRES_AVIUTL2' must be non-empty numeric string")
+endif()
+
 project(CameraTransform_K VERSION ${VERSION} LANGUAGES CXX)
 
-# Path settings.
-set(SDK_DIR "${CMAKE_SOURCE_DIR}/aviutl2_sdk")
+if (NOT WIN32)
+    message(FATAL_ERROR "This project is only for Windows")
+endif()
 
-# Main target definition.
+if (NOT CMAKE_SIZEOF_VOID_P MATCHES 8)
+    message(FATAL_ERROR "This project is only for x64")
+endif()
+
+if (NOT CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|amd64|AMD64)")
+    message(FATAL_ERROR "This project is only for x64")
+endif()
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+add_library(AviUtl2SDK INTERFACE)
+target_include_directories(AviUtl2SDK INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/extern/aviutl2_sdk/include/aviutl2_sdk"
+)
+
+if (MSVC)
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "19.50")
+        message(FATAL_ERROR "MSVC version 19.50 or higher is required")
+    endif()
+
+    add_compile_options(
+        /utf-8
+        /arch:AVX2
+        /sdl
+        /EHsc
+        /W4
+        /permissive-
+
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:Release>:/GL>
+        $<$<CONFIG:Release>:/Gy>
+
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/Zi>
+    )
+
+    add_link_options(
+        $<$<CONFIG:Release>:/LTCG>
+        $<$<CONFIG:Release>:/OPT:REF>
+        $<$<CONFIG:Release>:/OPT:ICF>
+
+        $<$<CONFIG:Debug>:/DEBUG>
+    )
+else()
+    message(FATAL_ERROR "This project is only for MSVC")
+endif()
+
+add_compile_definitions(
+    NOMINMAX
+    UNICODE
+    _UNICODE
+    STRICT
+    STRICT_TYPED_ITEMIDS
+    WIN32_LEAN_AND_MEAN
+    EIGEN_MPL2_ONLY
+    VERSION=L"${PROJECT_VERSION}"
+    REQUIRES_AVIUTL2=${REQUIRES_AVIUTL2}u
+)
+
+find_package(Eigen3 CONFIG REQUIRED)
+
+include(GenerateExportHeader)
+
 add_library(${PROJECT_NAME} SHARED
-    main.def
     main.cpp
+    aviutl.cpp
     transform.cpp
 )
 
-# Include directories.
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${SDK_DIR}
+generate_export_header(${PROJECT_NAME}
+    EXPORT_MACRO_NAME API
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/api.h
 )
 
-# Output settings.
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        Eigen3::Eigen
+        AviUtl2SDK
+)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     PREFIX ""
     SUFFIX ".mod2"
 )
 
-# C++ version specification.
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
-
-# Definitions.
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    VERSION=L"${VERSION}"
-)
-
-# Compiler Dependent Options.
-if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        /source-charset:utf-8
-        /execution-charset:utf-8
-        /arch:AVX2
-        /W4 # Warning Level 4.
-        /permissive- # Standards-based mode.
-
-        # Release-only optimizations.
-        $<$<CONFIG:Release>:/O2>
-        $<$<CONFIG:Release>:/GL> # Link Optimization.
-        $<$<CONFIG:Release>:/Gy> # Split by function. (Remove unused functions.)
-
-        # Debug settings.
-        $<$<CONFIG:Debug>:/Od>
-        $<$<CONFIG:Debug>:/Zi> # Debugging Information.
-    )
-
-    target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:/LTCG> # Runtime Optimization.
-        $<$<CONFIG:Debug>:/DEBUG> # Link with debug information.
-    )
-
-    # Runtime library switching.
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-    )
-endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)

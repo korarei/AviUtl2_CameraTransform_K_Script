@@ -4,4 +4,5 @@
 **/vcpkg/
 **/build/
 **/release/
+**/api.h
 **/compile_commands.json

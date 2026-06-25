@@ -269,57 +269,18 @@ local vec = {
 
 `order`は`"xyz"`のようにして使用する．
 
-## License
+## ビルド方法
 
-LICENSEファイルに記載．
+[リリース用ワークフロー](./.github/workflows/releaser.yml)を参照されたい．
 
-## Credits
+[extern](./modules/extern/) 内 `vcpkg` ディレクトリに [vcpkg](https://github.com/microsoft/vcpkg) 本体を配置する必要がある．
 
-### AviUtl ExEdit2 Plugin SDK
+## ライセンス
 
-https://spring-fragrance.mints.ne.jp/aviutl/
+本プログラムのライセンスは [LICENSE](./LICENSE) を参照されたい．
 
----
+また，本プログラムが利用するサードパーティ製ライブラリ等のライセンス情報は [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES.md) に記載している．
 
-The MIT License
+## 更新履歴
 
-Copyright (c) 2025 Kenkun
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-## Change Log
-- **v1.0.5**
-  - オブジェクトの存在判定方法を変更．
-
-- **v1.0.4**
-  - `rotate`関数を複数値を返す関数に変更．
-  - `Transform`と`Track`における`Use Relative Layer`チェックボックスを`Layer Reference`リストに変更 (破壊的)
-
-- **v1.0.3**
-  - `.mod2`化
-  - `Parent`でアンカーによる仮想的な親オブジェクトを表示するように変更．
-
-- **v1.0.2**
-  - 構造体の名前が衝突する問題を回避．
-
-- **v1.0.1**
-  - 改行コードをCRLFに変更．
-
-- **v1.0.0**
-  - Release
+[CHANGELOG](./CHANGELOG.md) を参照されたい．

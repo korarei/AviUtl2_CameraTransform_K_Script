@@ -35,7 +35,7 @@ artifacts = ["${BUILD_DIRECTORY}/Debug/*.mod2"]
 id = "camera"
 prefix = "@"
 suffix = ".cam2"
-variables = { SOURCE = "./scripts", LABEL = "カメラ効果" }
+variables = { SOURCE = "./scripts/camera", LABEL = "カメラ効果" }
 sources = [
     { file = "${SOURCE}/transform.lua" },
     { file = "${SOURCE}/track.lua" },

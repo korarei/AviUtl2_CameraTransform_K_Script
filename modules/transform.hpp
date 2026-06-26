@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
+#include <windows.h>
 
-#include "structs.hpp"
-#include "vector_3d.hpp"
+#include <module2.h>
 
-namespace Transform {
-int
-transform(const Param &param, const Parent &parent, const Cam &input, Cam &output) noexcept;
-
-std::vector<Vec3<double>>
-rotate(const std::vector<Vec3<double>> &input, const Rot &rot) noexcept;
-}  // namespace Transform
+namespace transform {
+void Align(SCRIPT_MODULE_PARAM* param);
+void Compose(SCRIPT_MODULE_PARAM* param);
+void Transform(SCRIPT_MODULE_PARAM* param);
+void Translate(SCRIPT_MODULE_PARAM* param);
+void Rotate(SCRIPT_MODULE_PARAM* param);
+void Reset(SCRIPT_MODULE_PARAM* param);
+}  // namespace transform

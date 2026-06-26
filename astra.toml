@@ -20,7 +20,7 @@ cmake -S "$env:SOURCE" -B "$dst" --preset release -DREQUIRES_AVIUTL2="$env:PROJE
 cp "$dst/compile_commands.json" "$env:SOURCE"
 cmake --build "$dst"
 '''
-artifacts = ["${BUILD_DIRECTORY}/Release/*.aux2"]
+artifacts = ["${BUILD_DIRECTORY}/Release/*.mod2"]
 
 [build.plugins.debug]
 commands = '''
@@ -29,7 +29,7 @@ cmake -S "$env:SOURCE" -B "$dst" --preset debug -DREQUIRES_AVIUTL2="$env:PROJECT
 cp "$dst/compile_commands.json" "$env:SOURCE"
 cmake --build "$dst"
 '''
-artifacts = ["${BUILD_DIRECTORY}/Debug/*.aux2"]
+artifacts = ["${BUILD_DIRECTORY}/Debug/*.mod2"]
 
 [[build.scripts]]
 id = "camera"

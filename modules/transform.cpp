@@ -1,104 +1,222 @@
 #include "transform.hpp"
 
-#include <array>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <cstdint>
+#include <Eigen/Core>
+#include <algorithm>
+#include <numbers>
 
-#include "quaternion.hpp"
+#include <Eigen/Geometry>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+namespace {
+Eigen::Affine3d xform = Eigen::Affine3d::Identity();
 
-using Vec3d = Vec3<double>;
-using Mat3d = Mat3<double>;
-
-[[nodiscard]] inline static constexpr double
-to_rad(double deg) noexcept {
-    return deg * (M_PI / 180.0);
+[[nodiscard]] inline constexpr double ToRad(double deg) noexcept {
+    constexpr double f = std::numbers::pi / 180.0;
+    return deg * f;
 }
 
-[[nodiscard]] inline static constexpr std::array<unsigned int, 3>
-decode_ord(unsigned int mode) noexcept {
-    unsigned int ax_2 = mode / 9;
-    unsigned int ax_1 = (mode / 3) % 3;
-    unsigned int ax_0 = mode % 3;
-    return {ax_2, ax_1, ax_0};
+[[nodiscard]] inline Eigen::Matrix3d ToRotationMatrix(int mode, const std::array<double, 3>& angle) {
+    const std::array<int, 3> order{mode / 9, (mode / 3) % 3, mode % 3};
+    const std::array<Eigen::Vector3d, 3> axis = {
+        Eigen::Vector3d::UnitX(),
+        Eigen::Vector3d::UnitY(),
+        Eigen::Vector3d::UnitZ(),
+    };
+
+    return (Eigen::AngleAxisd(angle[order[2]], axis[order[2]]) * Eigen::AngleAxisd(angle[order[1]], axis[order[1]]) *
+            Eigen::AngleAxisd(angle[order[0]], axis[order[0]]))
+        .toRotationMatrix();
 }
+}  // namespace
 
-[[nodiscard]] inline static constexpr Mat3d
-make_rm(const Rot &rot) noexcept {
-    const auto ord = decode_ord(rot.rot_mode);
-    return Mat3d::rotation(to_rad(rot.xyz[ord[2]]), 1.0, ord[2])
-         * Mat3d::rotation(to_rad(rot.xyz[ord[1]]), 1.0, ord[1])
-         * Mat3d::rotation(to_rad(rot.xyz[ord[0]]), 1.0, ord[0]);
-}
+namespace transform {
+void Align(SCRIPT_MODULE_PARAM* param) {
+    const auto n = param->get_param_num();
 
-std::vector<Vec3d>
-Transform::rotate(const std::vector<Vec3d> &input, const Rot &rot) noexcept {
-    std::vector<Vec3d> output;
-    output.reserve(input.size());
+    if (n < 3) {
+        param->set_error("Function call has wrong argument count");
+        return;
+    }
 
-    if (rot.rot_mode == 0) {
-        const auto q = Quaternion(rot.w, rot.xyz).normalize();
-        const auto q_inv = q.conjugate();
+    if (n == 3) {
+        return;
+    }
 
-        for (const auto &v : input) {
-            const auto p = Quaternion(0.0, v);
-            const auto p_rotated = q * p * q_inv;
-            output.emplace_back(p_rotated.get_v());
-        }
+    const auto t = std::clamp(param->get_param_double(0), 0.0, 1.0);
 
-        return output;
-    } else if (rot.rot_mode == 1) {
-        const double t = to_rad(rot.w);
-        const double cos = std::cos(t);
-        const double sin = std::sin(t);
-        const auto n = rot.xyz.normalize();
+    Eigen::Vector3d to;
 
-        for (const auto &v : input)
-            output.emplace_back(cos * v + sin * n.cross(v) + (1.0 - cos) * n.dot(v) * n);
+    if (param->get_param_array_num(1) == 3) {
+        const auto x = param->get_param_array_double(1, 0);
+        const auto y = param->get_param_array_double(1, 1);
+        const auto z = param->get_param_array_double(1, 2);
 
-        return output;
-    } else if (rot.rot_mode >= 5 && rot.rot_mode <= 21) {
-        const auto rm = make_rm(rot);
-        for (const auto &v : input) output.emplace_back(rm * v);
-
-        return output;
+        to = Eigen::Vector3d(x, y, z);
     } else {
-        return input;
+        to = Eigen::Vector3d::UnitZ();
     }
-}
 
-int
-Transform::transform(const Param &param, const Parent &parent, const Cam &input,
-                     Cam &output) noexcept {
-    Vec3d g_pos, g_target, g_up;
+    Eigen::Vector3d from;
 
-    const auto l_pose = rotate({input.target - input.pos, input.up}, param.rot);
-    const auto l_pos = param.pos + input.pos;
-
-    switch (parent.type) {
-        case 0: {
-            g_pos = l_pos;
-            g_target = g_pos + l_pose[0];
-            g_up = l_pose[1];
+    switch (param->get_param_int(2)) {
+        case -3:
+            from = -Eigen::Vector3d::UnitZ();
             break;
-        }
-        case 1: {
-            const auto g_pose = rotate({l_pos, l_pose[0], l_pose[1]}, parent.param.rot);
-            g_pos = parent.param.pos + g_pose[0] * parent.scale;
-            g_target = g_pos + g_pose[1];
-            g_up = g_pose[2];
+        case -2:
+            from = -Eigen::Vector3d::UnitY();
             break;
-        }
+        case -1:
+            from = -Eigen::Vector3d::UnitX();
+            break;
+        case 1:
+            from = Eigen::Vector3d::UnitX();
+            break;
+        case 2:
+            from = Eigen::Vector3d::UnitY();
+            break;
+        case 3:
+            from = Eigen::Vector3d::UnitZ();
+            break;
         default:
-            return 1;
+            param->set_error("Unsupported axis");
+            return;
     }
 
-    output.pos = g_pos;
-    output.target = g_target;
-    output.up = g_up;
-    return 0;
+    const Eigen::Quaterniond q = Eigen::Quaterniond::Identity().slerp(t, Eigen::Quaterniond::FromTwoVectors(from, to));
+
+    for (int i = 3; i < n; ++i) {
+        Eigen::Vector3d v;
+
+        if (param->get_param_array_num(i) == 3) {
+            const auto x = param->get_param_array_double(i, 0);
+            const auto y = param->get_param_array_double(i, 1);
+            const auto z = param->get_param_array_double(i, 2);
+
+            v = Eigen::Vector3d(x, y, z);
+        } else {
+            v = Eigen::Vector3d::Identity();
+        }
+
+        v = q * v;
+
+        param->push_result_array_double(v.data(), 3);
+    }
 }
+
+void Compose(SCRIPT_MODULE_PARAM* param) {
+    if (param->get_param_num() != 12) {
+        param->set_error("Function call has wrong argument count");
+        return;
+    }
+
+    const auto t = std::clamp(param->get_param_double(0), 0.0, 1.0);
+
+    const auto x = param->get_param_double(1) * t;
+    const auto y = param->get_param_double(2) * t;
+    const auto z = param->get_param_double(3) * t;
+    const auto rw = param->get_param_double(4);
+    const auto rx = param->get_param_double(5);
+    const auto ry = param->get_param_double(6);
+    const auto rz = param->get_param_double(7);
+    const auto mode = param->get_param_int(8);
+    const auto sx = param->get_param_double(9) * t;
+    const auto sy = param->get_param_double(10) * t;
+    const auto sz = param->get_param_double(11) * t;
+
+    Eigen::Affine3d h = Eigen::Affine3d::Identity();
+    h.translate(Eigen::Vector3d(x, y, z));
+    h.scale(Eigen::Vector3d(sx, sy, sz));
+
+    if (mode == 0) {
+        h.rotate(Eigen::Quaterniond::Identity().slerp(t, Eigen::Quaterniond(rw, rx, ry, rz).normalized()));
+    } else if (mode == 1) {
+        h.rotate(Eigen::AngleAxisd(ToRad(rw * t), Eigen::Vector3d(rx, ry, rz).normalized()));
+    } else if (mode >= 5 && mode <= 21) {
+        h.rotate(ToRotationMatrix(mode, {ToRad(rx * t), ToRad(ry * t), ToRad(rz * t)}));
+    } else {
+        param->set_error("Unsupported rotation mode");
+        return;
+    }
+
+    xform = xform * h;
+}
+
+void Transform(SCRIPT_MODULE_PARAM* param) {
+    const auto n = param->get_param_num();
+
+    if (n == 0) {
+        return;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        Eigen::Vector3d v;
+
+        if (param->get_param_array_num(i) == 3) {
+            const auto x = param->get_param_array_double(i, 0);
+            const auto y = param->get_param_array_double(i, 1);
+            const auto z = param->get_param_array_double(i, 2);
+
+            v = Eigen::Vector3d(x, y, z);
+        } else {
+            v = Eigen::Vector3d::Identity();
+        }
+
+        v = xform * v;
+
+        param->push_result_array_double(v.data(), 3);
+    }
+}
+
+void Translate(SCRIPT_MODULE_PARAM* param) {
+    const auto n = param->get_param_num();
+
+    if (n == 0) {
+        return;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        Eigen::Vector3d v;
+
+        if (param->get_param_array_num(i) == 3) {
+            const auto x = param->get_param_array_double(i, 0);
+            const auto y = param->get_param_array_double(i, 1);
+            const auto z = param->get_param_array_double(i, 2);
+
+            v = Eigen::Vector3d(x, y, z);
+        } else {
+            v = Eigen::Vector3d::Identity();
+        }
+
+        v = xform.translation() + v;
+
+        param->push_result_array_double(v.data(), 3);
+    }
+}
+
+void Rotate(SCRIPT_MODULE_PARAM* param) {
+    const auto n = param->get_param_num();
+
+    if (n == 0) {
+        return;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        Eigen::Vector3d v;
+
+        if (param->get_param_array_num(i) == 3) {
+            const auto x = param->get_param_array_double(i, 0);
+            const auto y = param->get_param_array_double(i, 1);
+            const auto z = param->get_param_array_double(i, 2);
+
+            v = Eigen::Vector3d(x, y, z);
+        } else {
+            v = Eigen::Vector3d::Identity();
+        }
+
+        v = xform.rotation() * v;
+
+        param->push_result_array_double(v.data(), 3);
+    }
+}
+
+void Reset([[maybe_unused]] SCRIPT_MODULE_PARAM* param) { xform = Eigen::Affine3d::Identity(); }
+}  // namespace transform

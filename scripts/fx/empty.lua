@@ -92,7 +92,10 @@ do
             global[kKeyXform] = nil
         else
             print("@warn", "Object not found on layer " .. relations_parent_layer)
+            vector.reset()
         end
+    else
+        vector.reset()
     end
 
     global[kKeyXform] = cache

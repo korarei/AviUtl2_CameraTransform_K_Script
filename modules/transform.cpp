@@ -43,7 +43,6 @@ struct TransformProperty {
     Eigen::Affine3d h = Eigen::Affine3d::Identity();
 
     h.translate(Eigen::Vector3d(xform.position.x * t, xform.position.y * t, xform.position.z * t));
-    h.scale(Eigen::Vector3d(xform.scale.x * t, xform.scale.y * t, xform.scale.z * t));
 
     if (xform.rotation.mode == 0) {
         Eigen::Quaterniond q(xform.rotation.w, xform.rotation.x, xform.rotation.y, xform.rotation.z);
@@ -75,6 +74,8 @@ struct TransformProperty {
     } else {
         h.rotate(Eigen::Quaterniond::Identity());
     }
+
+    h.scale(Eigen::Vector3d(xform.scale.x * t, xform.scale.y * t, xform.scale.z * t));
 
     return h;
 }

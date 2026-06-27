@@ -26,7 +26,7 @@
 > THE SOFTWARE.
 > ```
 
-## [Eigen](https://github.com/bolderflight/eigen)
+## [Eigen](https://gitlab.com/libeigen/eigen)
 
 > ```
 > Mozilla Public License Version 2.0

@@ -40,6 +40,7 @@ include-directories = ["./scripts"]
 sources = [
     { file = "${SOURCE}/transform.lua" },
     { file = "${SOURCE}/track.lua" },
+    { file = "${SOURCE}/lens.lua" },
 ]
 
 [[build.scripts]]

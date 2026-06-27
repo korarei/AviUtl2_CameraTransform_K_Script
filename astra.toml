@@ -41,6 +41,16 @@ sources = [
     { file = "${SOURCE}/track.lua" },
 ]
 
+[[build.scripts]]
+id = "fx"
+prefix = "@"
+suffix = ".anm2"
+variables = { SOURCE = "./scripts/fx", LABEL = "配置" }
+sources = [
+    { file = "${SOURCE}/empty.lua" },
+    { file = "${SOURCE}/relations.lua" },
+]
+
 [release]
 [release.package]
 information = "${PROJECT_NAME} v${PROJECT_VERSION} by ${PROJECT_AUTHOR}"
@@ -59,7 +69,7 @@ description = """
 
 [[release.contents.extensions]]
 directory = "Script/${PROJECT_NAME}"
-files = ["script:camera", "plugin:core"]
+files = ["plugin:core", "script:camera", "script:fx"]
 
 [[release.contents.documents]]
 directory = "Script/${PROJECT_NAME}"

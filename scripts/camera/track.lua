@@ -17,8 +17,6 @@ do
 
     local kKeyXform = "0e1ed7c9-af0e-4440-b903-eb36ba941ede"
 
-    local cache = buffer.new()
-
     influence = influence * 0.01
 
     if layer_reference == 0 then
@@ -29,7 +27,12 @@ do
 
     local target = "layer" .. target_layer
 
-    if target_layer == 0 or target_layer == obj.layer or not obj.getvalue(target) then
+    if target_layer == 0 or target_layer == obj.layer then
+        return
+    end
+
+    if not obj.getvalue(target) then
+        print("@warn", "Object not found on layer " .. target_layer)
         return
     end
 
@@ -41,8 +44,10 @@ do
         local rx, ry, rz = obj.getvalue(target .. ".angle")
         local sx, sy, sz = obj.getvalue(target .. ".scale")
 
-        if global[kKeyXform] ~= nil and obj.load("layer", target_layer, true) then
-            local xform = cache:set(global[kKeyXform]):decode()
+        global[kKeyXform] = nil
+
+        if obj.load("layer", target_layer, true) and global[kKeyXform] ~= nil then
+            local xform = buffer.decode(global[kKeyXform])
 
             if type(xform) == "table" and #xform == 10 then
                 t = tonumber(xform[1]) or 1.0
@@ -59,6 +64,8 @@ do
         end
 
         vector.compose(t, x, y, z, 0.0, rx, ry, rz, 21, sx, sy, sz)
+
+        global[kKeyXform] = nil
     end
 
     local to = vector.translate({ 0.0, 0.0, 0.0 })
@@ -77,4 +84,6 @@ do
     props.tx, props.ty, props.tz = d[1] + props.x, d[2] + props.y, d[3] + props.z
 
     obj.setoption("camera_param", props)
+
+    vector.reset()
 end

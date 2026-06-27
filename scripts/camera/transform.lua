@@ -35,8 +35,6 @@ do
 
     local kKeyXform = "0e1ed7c9-af0e-4440-b903-eb36ba941ede"
 
-    local cache = buffer.new()
-
     scale_x = scale_x * 0.01
     scale_y = scale_y * 0.01
     scale_z = scale_z * 0.01
@@ -54,30 +52,38 @@ do
     do
         local target = "layer" .. relations_parent_layer
 
-        if relations_parent_layer ~= 0 and relations_parent_layer ~= obj.layer and obj.getvalue(target) then
-            local t = 1.0
-            local x, y, z = obj.getvalue(target .. ".pos")
-            local rx, ry, rz = obj.getvalue(target .. ".angle")
-            local sx, sy, sz = obj.getvalue(target .. ".scale")
+        if relations_parent_layer ~= 0 and relations_parent_layer ~= obj.layer then
+            if obj.getvalue(target) then
+                local t = 1.0
+                local x, y, z = obj.getvalue(target .. ".pos")
+                local rx, ry, rz = obj.getvalue(target .. ".angle")
+                local sx, sy, sz = obj.getvalue(target .. ".scale")
 
-            if global[kKeyXform] ~= nil and obj.load("layer", relations_parent_layer, true) then
-                local xform = cache:set(global[kKeyXform]):decode()
+                global[kKeyXform] = nil
 
-                if type(xform) == "table" and #xform == 10 then
-                    t = tonumber(xform[1]) or 1.0
-                    x = x + (tonumber(xform[2]) or 0.0)
-                    y = y + (tonumber(xform[3]) or 0.0)
-                    z = z + (tonumber(xform[4]) or 0.0)
-                    rx = rx + (tonumber(xform[5]) or 0.0)
-                    ry = ry + (tonumber(xform[6]) or 0.0)
-                    rz = rz + (tonumber(xform[7]) or 0.0)
-                    sx = sx * (tonumber(xform[8]) or 1.0)
-                    sy = sy * (tonumber(xform[9]) or 1.0)
-                    sz = sz * (tonumber(xform[10]) or 1.0)
+                if obj.load("layer", relations_parent_layer, true) and global[kKeyXform] ~= nil then
+                    local xform = buffer.decode(global[kKeyXform])
+
+                    if type(xform) == "table" and #xform == 10 then
+                        t = tonumber(xform[1]) or 1.0
+                        x = x + (tonumber(xform[2]) or 0.0)
+                        y = y + (tonumber(xform[3]) or 0.0)
+                        z = z + (tonumber(xform[4]) or 0.0)
+                        rx = rx + (tonumber(xform[5]) or 0.0)
+                        ry = ry + (tonumber(xform[6]) or 0.0)
+                        rz = rz + (tonumber(xform[7]) or 0.0)
+                        sx = sx * (tonumber(xform[8]) or 1.0)
+                        sy = sy * (tonumber(xform[9]) or 1.0)
+                        sz = sz * (tonumber(xform[10]) or 1.0)
+                    end
                 end
-            end
 
-            vector.compose(t, x, y, z, 0.0, rx, ry, rz, 21, sx, sy, sz)
+                vector.compose(t, x, y, z, 0.0, rx, ry, rz, 21, sx, sy, sz)
+
+                global[kKeyXform] = nil
+            else
+                print("@warn", "Object not found on layer " .. relations_parent_layer)
+            end
         end
     end
 
@@ -106,4 +112,6 @@ do
     props.x, props.y, props.z = pos[1], pos[2], pos[3]
 
     obj.setoption("camera_param", props)
+
+    vector.reset()
 end

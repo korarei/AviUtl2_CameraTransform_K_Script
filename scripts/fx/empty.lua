@@ -104,7 +104,9 @@ do
     global[kKeyXform] =
         buffer.encode({ influence, obj.ox, obj.oy, obj.oz, obj.rx, obj.ry, obj.rz, obj.sx, obj.sy, obj.sz })
 
-    if obj.getinfo("saving") and not visibility_show_in_renders or not visibility_show_in_viewports then
+    local is_rendering = obj.getinfo("saving")
+
+    if is_rendering and not visibility_show_in_renders or (not is_rendering and not visibility_show_in_viewports) then
         obj.clearbuffer("object", 1, 1, 0)
         obj.alpha = kEpsilon
         obj.setoption("focus_mode", "fixed_size")

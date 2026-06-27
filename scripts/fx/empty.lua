@@ -48,7 +48,7 @@ do
 
     local buffer = require("string.buffer")
 
-    local vector = obj.module("CameraTransform_K")
+    local vector = obj.module("${SCRIPT_NAME}")
 
     local kCacheImage = "cache:ad0476bd-2eaa-4852-80a6-5feda1dc7587-" .. obj.effect_id
     local kEpsilon = 1.0e-4

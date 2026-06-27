@@ -18,7 +18,7 @@ do
     local utils = require("utilities")
     local copyxform, stop = utils.copyxform, utils.stop
 
-    local vector = obj.module("CameraTransform_K")
+    local vector = obj.module("${SCRIPT_NAME}")
 
     local kCacheImage = "cache:9f8eddfa-19d0-453c-b64b-c658e3099de5-" .. obj.effect_id
     local kEpsilon = 1.0e-4

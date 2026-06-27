@@ -15,7 +15,7 @@ do
     local parent = require("parent")
     local compose = parent.compose
 
-    local vector = obj.module("CameraTransform_K")
+    local vector = obj.module("${SCRIPT_NAME}")
 
     influence = influence * 0.01
 

@@ -33,7 +33,7 @@ do
     local parent = require("parent")
     local compose = parent.compose
 
-    local vector = obj.module("CameraTransform_K")
+    local vector = obj.module("${SCRIPT_NAME}")
 
     scale_x = scale_x * 0.01
     scale_y = scale_y * 0.01

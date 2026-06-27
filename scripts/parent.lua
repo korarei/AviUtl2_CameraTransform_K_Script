@@ -18,6 +18,10 @@ do
             return false
         end
 
+        if obj.getvalue(target, "Empty@CameraTransform_K", "Influence") == nil then
+            vector.reset()
+        end
+
         if not vector.tryenter(target) then
             print("@warn", "Cyclic reference is not allowed")
             vector.reset()

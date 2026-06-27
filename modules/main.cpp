@@ -16,13 +16,10 @@
 
 namespace {
 constinit SCRIPT_MODULE_FUNCTION functions[] = {
-    {L"align", transform::Align},
-    {L"compose", transform::Compose},
-    {L"transform", transform::Transform},
-    {L"translate", transform::Translate},
-    {L"rotate", transform::Rotate},
-    {L"reset", transform::Reset},
-    {nullptr, nullptr},
+    {L"tryenter", transform::TryEnter},   {L"align", transform::Align},
+    {L"compose", transform::Compose},     {L"transform", transform::Transform},
+    {L"translate", transform::Translate}, {L"rotate", transform::Rotate},
+    {L"reset", transform::Reset},         {nullptr, nullptr},
 };
 
 constinit SCRIPT_MODULE_TABLE info = {

@@ -20,19 +20,20 @@ if obj.num ~= 1 then
 end
 
 do
+    --#include "../parent.lua"
+    local parent = require("parent")
+    local kKeyXform, compose = parent.kKeyXform, parent.compose
+
     --#include "utilities.lua"
     local utils = require("utilities")
-    local copyxform = utils.copyxform
+    local copyxform, stop = utils.copyxform, utils.stop
 
     local buffer = require("string.buffer")
 
     local vector = obj.module("CameraTransform_K")
 
-    local kKeyXform = "0e1ed7c9-af0e-4440-b903-eb36ba941ede"
     local kCacheImage = "cache:ad0476bd-2eaa-4852-80a6-5feda1dc7587-" .. obj.effect_id
     local kEpsilon = 1.0e-4
-
-    local cache = buffer.new()
 
     influence = influence * 0.01
 
@@ -42,66 +43,29 @@ do
         relations_parent_layer = math.max(obj.layer + relations_parent_layer, 0)
     end
 
-    local target = "layer" .. relations_parent_layer
-
     if relations_parent_layer ~= 0 and relations_parent_layer ~= obj.layer then
-        if obj.getvalue(target) then
-            local t = 1.0
-            local x, y, z = obj.getvalue(target .. ".pos")
-            local rx, ry, rz = obj.getvalue(target .. ".angle")
-            local sx, sy, sz = obj.getvalue(target .. ".scale")
+        local xform = {}
+        copyxform(xform, obj)
 
-            local props = {}
-            copyxform(props, obj)
-
-            if not obj.copybuffer(kCacheImage, "object") then
-                print("@error", "Failed to copy buffer")
-                obj.load("text", "")
-                return
-            end
-
-            global[kKeyXform] = nil
-
-            if obj.load("layer", relations_parent_layer, true) and global[kKeyXform] ~= nil then
-                local xform = cache:set(global[kKeyXform]):decode()
-
-                if type(xform) == "table" and #xform == 10 then
-                    t = tonumber(xform[1]) or 1.0
-                    x = x + (tonumber(xform[2]) or 0.0)
-                    y = y + (tonumber(xform[3]) or 0.0)
-                    z = z + (tonumber(xform[4]) or 0.0)
-                    rx = rx + (tonumber(xform[5]) or 0.0)
-                    ry = ry + (tonumber(xform[6]) or 0.0)
-                    rz = rz + (tonumber(xform[7]) or 0.0)
-                    sx = sx * (tonumber(xform[8]) or 1.0)
-                    sy = sy * (tonumber(xform[9]) or 1.0)
-                    sz = sz * (tonumber(xform[10]) or 1.0)
-                end
-            end
-
-            if not obj.copybuffer("object", kCacheImage) then
-                print("@error", "Failed to copy buffer")
-                obj.load("text", "")
-                return
-            end
-
-            copyxform(obj, props)
-
-            vector.compose(t, x, y, z, 0.0, rx, ry, rz, 21, sx, sy, sz)
-
-            global[kKeyXform] = nil
-        else
-            print("@warn", "Object not found on layer " .. relations_parent_layer)
-            vector.reset()
+        if not obj.copybuffer(kCacheImage, "object") then
+            stop("Failed to copy buffer")
+            return
         end
+
+        compose(relations_parent_layer)
+
+        if not obj.copybuffer("object", kCacheImage) then
+            stop("Failed to copy buffer")
+            return
+        end
+
+        copyxform(obj, xform)
     else
         vector.reset()
     end
 
-    global[kKeyXform] = cache
-        :reset()
-        :encode({ influence, obj.ox, obj.oy, obj.oz, obj.rx, obj.ry, obj.rz, obj.sx, obj.sy, obj.sz })
-        :get()
+    global[kKeyXform] =
+        buffer.encode({ influence, obj.ox, obj.oy, obj.oz, obj.rx, obj.ry, obj.rz, obj.sx, obj.sy, obj.sz })
 
     if obj.getinfo("saving") and not visibility_show_in_renders or not visibility_show_in_viewports then
         obj.clearbuffer("object", 1, 1, 0)

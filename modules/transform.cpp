@@ -1,11 +1,12 @@
 #include "transform.hpp"
 
-#include <Eigen/Core>
 #include <numbers>
+#include <unordered_set>
 
 #include <Eigen/Geometry>
 
 namespace {
+std::unordered_set<int> visited;
 Eigen::Affine3d affine = Eigen::Affine3d::Identity();
 
 struct TransformProperty {
@@ -82,6 +83,10 @@ struct TransformProperty {
 }  // namespace
 
 namespace transform {
+void TryEnter(SCRIPT_MODULE_PARAM* param) {
+    param->push_result_boolean(visited.insert(param->get_param_int(0)).second);
+}
+
 void Align(SCRIPT_MODULE_PARAM* param) {
     const auto n = param->get_param_num();
 
@@ -343,5 +348,8 @@ void Rotate(SCRIPT_MODULE_PARAM* param) {
     }
 }
 
-void Reset([[maybe_unused]] SCRIPT_MODULE_PARAM* param) { affine = Eigen::Affine3d::Identity(); }
+void Reset([[maybe_unused]] SCRIPT_MODULE_PARAM* param) {
+    visited.clear();
+    affine = Eigen::Affine3d::Identity();
+}
 }  // namespace transform

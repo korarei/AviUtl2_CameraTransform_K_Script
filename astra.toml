@@ -36,6 +36,7 @@ id = "camera"
 prefix = "@"
 suffix = ".cam2"
 variables = { SOURCE = "./scripts/camera", LABEL = "カメラ効果" }
+include-directories = ["./scripts"]
 sources = [
     { file = "${SOURCE}/transform.lua" },
     { file = "${SOURCE}/track.lua" },
@@ -46,6 +47,7 @@ id = "fx"
 prefix = "@"
 suffix = ".anm2"
 variables = { SOURCE = "./scripts/fx", LABEL = "配置" }
+include-directories = ["./scripts"]
 sources = [
     { file = "${SOURCE}/empty.lua" },
     { file = "${SOURCE}/relations.lua" },

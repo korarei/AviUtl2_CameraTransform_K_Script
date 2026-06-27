@@ -11,11 +11,11 @@ local influence = 100 --track@influence:Influence,0,100,100,0.01
 local layer_reference = 0 --select@layer_reference:Layer Reference,Absolute=0,Relative=1
 
 do
-    local buffer = require("string.buffer")
+    --#include "../parent.lua"
+    local parent = require("parent")
+    local compose = parent.compose
 
     local vector = obj.module("CameraTransform_K")
-
-    local kKeyXform = "0e1ed7c9-af0e-4440-b903-eb36ba941ede"
 
     influence = influence * 0.01
 
@@ -25,47 +25,14 @@ do
         target_layer = math.max(obj.layer + target_layer, 0)
     end
 
-    local target = "layer" .. target_layer
-
     if target_layer == 0 or target_layer == obj.layer then
-        return
-    end
-
-    if not obj.getvalue(target) then
-        print("@warn", "Object not found on layer " .. target_layer)
         return
     end
 
     vector.reset()
 
-    do
-        local t = 1.0
-        local x, y, z = obj.getvalue(target .. ".pos")
-        local rx, ry, rz = obj.getvalue(target .. ".angle")
-        local sx, sy, sz = obj.getvalue(target .. ".scale")
-
-        global[kKeyXform] = nil
-
-        if obj.load("layer", target_layer, true) and global[kKeyXform] ~= nil then
-            local xform = buffer.decode(global[kKeyXform])
-
-            if type(xform) == "table" and #xform == 10 then
-                t = tonumber(xform[1]) or 1.0
-                x = x + (tonumber(xform[2]) or 0.0)
-                y = y + (tonumber(xform[3]) or 0.0)
-                z = z + (tonumber(xform[4]) or 0.0)
-                rx = rx + (tonumber(xform[5]) or 0.0)
-                ry = ry + (tonumber(xform[6]) or 0.0)
-                rz = rz + (tonumber(xform[7]) or 0.0)
-                sx = sx * (tonumber(xform[8]) or 1.0)
-                sy = sy * (tonumber(xform[9]) or 1.0)
-                sz = sz * (tonumber(xform[10]) or 1.0)
-            end
-        end
-
-        vector.compose(t, x, y, z, 0.0, rx, ry, rz, 21, sx, sy, sz)
-
-        global[kKeyXform] = nil
+    if not compose(target_layer) then
+        return
     end
 
     local to = vector.translate({ 0.0, 0.0, 0.0 })
@@ -84,6 +51,4 @@ do
     props.tx, props.ty, props.tz = d[1] + props.x, d[2] + props.y, d[3] + props.z
 
     obj.setoption("camera_param", props)
-
-    vector.reset()
 end

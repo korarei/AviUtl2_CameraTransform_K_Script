@@ -33,7 +33,7 @@ API DWORD RequiredVersion() { return REQUIRES_AVIUTL2; }
 
 API bool InitializePlugin(DWORD version) { return version >= RequiredVersion(); }
 
-API void UninitializePlugin() {}
+API void UninitializePlugin() { transform::Deinit(); }
 
 API SCRIPT_MODULE_TABLE* GetScriptModuleTable() { return &info; }
 }

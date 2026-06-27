@@ -24,12 +24,12 @@ struct TransformProperty {
     } scale{};
 };
 
-[[nodiscard]] inline constexpr double ToDeg(double rad) noexcept {
+[[nodiscard]] constexpr double ToDeg(double rad) noexcept {
     constexpr double f = 180.0 / std::numbers::pi;
     return rad * f;
 }
 
-[[nodiscard]] inline constexpr double ToRad(double deg) noexcept {
+[[nodiscard]] constexpr double ToRad(double deg) noexcept {
     constexpr double f = std::numbers::pi / 180.0;
     return deg * f;
 }
@@ -352,4 +352,6 @@ void Reset([[maybe_unused]] SCRIPT_MODULE_PARAM* param) {
     visited.clear();
     affine = Eigen::Affine3d::Identity();
 }
+
+void Deinit() { std::unordered_set<int>().swap(visited); }
 }  // namespace transform

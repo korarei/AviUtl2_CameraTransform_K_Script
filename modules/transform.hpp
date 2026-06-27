@@ -12,4 +12,5 @@ void Transform(SCRIPT_MODULE_PARAM* param);
 void Translate(SCRIPT_MODULE_PARAM* param);
 void Rotate(SCRIPT_MODULE_PARAM* param);
 void Reset(SCRIPT_MODULE_PARAM* param);
+void Deinit();
 }  // namespace transform

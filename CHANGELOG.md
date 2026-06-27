@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.0.0
+
+> [!CAUTION]
+> v1.x.x との互換性はない．
+
+- `Transform` の適用順番を反転
+- `Parent` を廃止
+- `Track` に方向を指定する機能を追加
+- `Empty` を追加
+- `Relations` を追加
+
 ## v1.0.5
 
 - オブジェクトの存在判定方法を変更

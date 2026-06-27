@@ -54,6 +54,9 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 下から上へ座標変換される．
 
+> [!TIP]
+> エフェクトによるオブジェクトの座標変化を取得するためには `Relations::Parent Layer` で指定するオブジェクトに `Empty@CameraTransform_K` を追加する必要がある．
+
 #### パラメータ
 
 - <details>
@@ -101,6 +104,9 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 目標オブジェクトに対してカメラを向けるスクリプト．
 
+> [!TIP]
+> エフェクトによるオブジェクトの座標変化を取得するためには `Target Layer` で指定するオブジェクトに `Empty@CameraTransform_K` を追加する必要がある．
+
 #### パラメータ
 
 - Target Layer: 目標オブジェクトのレイヤーを指定
@@ -141,7 +147,7 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 - <details>
   <summary>Depth of Field</summary>
 
-  - Focus Distance: 目標までの距離
+  - DOF::Focus Distance: 目標までの距離
 
   </details>
 
@@ -153,6 +159,9 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 > [!WARNING]
 > エフェクトの個別オブジェクト設定が有効な場合は使用不可．
+
+> [!TIP]
+> エフェクトによるオブジェクトの座標変化を取得するためには `Relations::Parent Layer` で指定するオブジェクトに `Empty@CameraTransform_K` を追加する必要がある．
 
 #### パラメータ
 
@@ -208,6 +217,9 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 初期ラベル: `配置`
 
 指定したオブジェクトの位置姿勢情報をコピーする．
+
+> [!TIP]
+> エフェクトによるオブジェクトの座標変化を取得するためには `Parent Layer` で指定するオブジェクトに `Empty@CameraTransform_K` を追加する必要がある．
 
 - Parent Layer: 親オブジェクトのレイヤー番号を指定
 

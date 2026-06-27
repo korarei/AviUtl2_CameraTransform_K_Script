@@ -36,7 +36,6 @@ id = "camera"
 prefix = "@"
 suffix = ".cam2"
 variables = { SOURCE = "./scripts/camera", LABEL = "カメラ効果" }
-include-directories = ["./scripts"]
 sources = [
     { file = "${SOURCE}/transform.lua" },
     { file = "${SOURCE}/track.lua" },
@@ -48,7 +47,6 @@ id = "fx"
 prefix = "@"
 suffix = ".anm2"
 variables = { SOURCE = "./scripts/fx", LABEL = "配置" }
-include-directories = ["./scripts"]
 sources = [
     { file = "${SOURCE}/empty.lua" },
     { file = "${SOURCE}/relations.lua" },
@@ -60,14 +58,20 @@ information = "${PROJECT_NAME} v${PROJECT_VERSION} by ${PROJECT_AUTHOR}"
 license = "MIT"
 website = "https://github.com/korarei/AviUtl2_CameraTransform_K_Script"
 report-issue = "https://github.com/korarei/AviUtl2_CameraTransform_K_Script/issues"
-summary = "AviUtl ExEdit2 のカメラ操作感を変更するスクリプト"
+summary = "AviUtl ExEdit2 向けカメラ調整用ツール"
 description = """
 以下の機能が追加される
 
 カメラ効果
 
-- カメラ効果\\Transform@CameraTransform_K: カメラ座標の調整
-- カメラ効果\\Track@CameraTransform_K: 目標オブジェクトに対してカメラを向ける
+- カメラ効果\\Transform@CameraTransform_K: カメラの位置や向きを調整
+- カメラ効果\\Track@CameraTransform_K: ターゲットへカメラを追従
+- カメラ効果\\Lens@CameraTransform_K: 見え方そのものを調整
+
+アニメーション効果
+
+- 配置\\Empty@CameraTransform_K: エフェクト版グループ制御
+- 配置\\Relations@CameraTransform_K: 他オブジェクトと同期
 """
 
 [[release.contents.extensions]]

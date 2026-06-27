@@ -106,34 +106,34 @@ do
 
     local is_rendering = obj.getinfo("saving")
 
+    local x, y, z = obj.getvalue("pos")
+    local rx, ry, rz = obj.getvalue("angle")
+    local sx, sy, sz = obj.getvalue("scale")
+
+    sx, sy, sz = math.max(sx, kEpsilon), math.max(sy, kEpsilon), math.max(sz, kEpsilon)
+
+    local xform = vector.transform({
+        influence,
+        obj.ox + x,
+        obj.oy + y,
+        obj.oz + z,
+        0.0,
+        obj.rx + rx,
+        obj.ry + ry,
+        obj.rz + rz,
+        21,
+        obj.sx * sx,
+        obj.sy * sy,
+        obj.sz * sz,
+    })
+
+    obj.ox, obj.oy, obj.oz = xform[1] - x, xform[2] - y, xform[3] - z
+    obj.rx, obj.ry, obj.rz = xform[5] - rx, xform[6] - ry, xform[7] - rz
+    obj.sx, obj.sy, obj.sz = xform[9] / sx, xform[10] / sy, xform[11] / sz
+
     if is_rendering and not visibility_show_in_renders or (not is_rendering and not visibility_show_in_viewports) then
         obj.clearbuffer("object", 1, 1, 0)
         obj.alpha = kEpsilon
         obj.setoption("focus_mode", "fixed_size")
-    else
-        local x, y, z = obj.getvalue("pos")
-        local rx, ry, rz = obj.getvalue("angle")
-        local sx, sy, sz = obj.getvalue("scale")
-
-        sx, sy, sz = math.max(sx, kEpsilon), math.max(sy, kEpsilon), math.max(sz, kEpsilon)
-
-        local xform = vector.transform({
-            influence,
-            obj.ox + x,
-            obj.oy + y,
-            obj.oz + z,
-            0.0,
-            obj.rx + rx,
-            obj.ry + ry,
-            obj.rz + rz,
-            21,
-            obj.sx * sx,
-            obj.sy * sy,
-            obj.sz * sz,
-        })
-
-        obj.ox, obj.oy, obj.oz = xform[1] - x, xform[2] - y, xform[3] - z
-        obj.rx, obj.ry, obj.rz = xform[5] - rx, xform[6] - ry, xform[7] - rz
-        obj.sx, obj.sy, obj.sz = xform[9] / sx, xform[10] / sy, xform[11] / sz
     end
 end

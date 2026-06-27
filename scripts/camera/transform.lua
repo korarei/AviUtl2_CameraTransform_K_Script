@@ -24,7 +24,7 @@ local scale_z = 100.0 --track@scale_z:Scale::Z,0,10000,100,0.01
 --trackgroup@scale_x,scale_y,scale_z:Group::Scale
 --group:Relations,true
 local relations_parent_layer = 0 --track@relations_parent_layer:Relations::Parent Layer,-100,100,0,1,---
---group:Additional Operations,false
+--group:Additional Options,false
 local influence = 100.0 --track@influence:Influence,0,100,100,0.01
 local layer_reference = 0 --select@layer_reference:Layer Reference=0,Absolute=0,Relative=1
 

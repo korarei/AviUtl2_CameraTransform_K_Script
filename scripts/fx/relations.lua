@@ -5,7 +5,7 @@
 --label:${LABEL}
 
 local parent_layer = 0 --track@parent_layer:Parent Layer,-100,100,0,1,---
---group:Additional Operations,false
+--group:Additional Options,false
 local influence = 100.0 --track@influence:Influence,0,100,100,0.01
 local layer_reference = 0 --select@layer_reference:Layer Reference=0,Absolute=0,Relative=1
 

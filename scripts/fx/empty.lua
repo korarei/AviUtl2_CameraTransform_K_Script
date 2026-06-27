@@ -28,7 +28,7 @@ local relations_parent_layer = 0 --track@relations_parent_layer:Relations::Paren
 --separator:Show In
 local visibility_show_in_viewports = true --check@visibility_show_in_viewports:Visibility::Show In::Viewports,true
 local visibility_show_in_renders = false --check@visibility_show_in_renders:Visibility::Show In::Renders,false
---group:Additional Operations,false
+--group:Additional Options,false
 local influence = 100.0 --track@influence:Influence,0,100,100,0.01
 local layer_reference = 0 --select@layer_reference:Layer Reference=0,Absolute=0,Relative=1
 

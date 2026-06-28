@@ -37,18 +37,26 @@ do
 
     local to = vector.translate({ 0.0, 0.0, 0.0 })
 
-    local props = obj.getoption("camera_param")
+    do
+        local camera = obj.getoption("camera_param")
+        local focus = obj.getoption("camera_focus")
 
-    local d, up = vector.align(
-        influence,
-        { to[1] - props.x, to[2] - props.y, to[3] - props.z },
-        track_axis,
-        { props.tx - props.x, props.ty - props.y, props.tz - props.z },
-        { props.ux, props.uy, props.uz }
-    )
+        local d, up = vector.align(
+            influence,
+            { to[1] - camera.x, to[2] - camera.y, to[3] - camera.z },
+            track_axis,
+            { camera.tx - camera.x, camera.ty - camera.y, camera.tz - camera.z },
+            { camera.ux, camera.uy, camera.uz }
+        )
 
-    props.ux, props.uy, props.uz = up[1], up[2], up[3]
-    props.tx, props.ty, props.tz = d[1] + props.x, d[2] + props.y, d[3] + props.z
+        local tx, ty, tz = d[1] + camera.x, d[2] + camera.y, d[3] + camera.z
 
-    obj.setoption("camera_param", props)
+        camera.ux, camera.uy, camera.uz = up[1], up[2], up[3]
+        camera.tx, camera.ty, camera.tz = tx, ty, tz
+
+        focus.x, focus.y, focus.z = tx, ty, tz
+
+        obj.setoption("camera_param", camera)
+        obj.setoption("camera_focus", focus)
+    end
 end

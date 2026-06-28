@@ -68,14 +68,20 @@ do
         scale_z
     )
 
-    local props = obj.getoption("camera_param")
+    do
+        local camera = obj.getoption("camera_param")
+        local focus = obj.getoption("camera_focus")
 
-    local up = vector.rotate({ props.ux, props.uy, props.uz })
-    local to, pos = vector.transform({ props.tx, props.ty, props.tz }, { props.x, props.y, props.z })
+        local up = vector.rotate({ camera.ux, camera.uy, camera.uz })
+        local to, pos = vector.transform({ camera.tx, camera.ty, camera.tz }, { camera.x, camera.y, camera.z })
 
-    props.ux, props.uy, props.uz = up[1], up[2], up[3]
-    props.tx, props.ty, props.tz = to[1], to[2], to[3]
-    props.x, props.y, props.z = pos[1], pos[2], pos[3]
+        camera.ux, camera.uy, camera.uz = up[1], up[2], up[3]
+        camera.tx, camera.ty, camera.tz = to[1], to[2], to[3]
+        camera.x, camera.y, camera.z = pos[1], pos[2], pos[3]
 
-    obj.setoption("camera_param", props)
+        focus.x, focus.y, focus.z = to[1], to[2], to[3]
+
+        obj.setoption("camera_param", camera)
+        obj.setoption("camera_focus", focus)
+    end
 end

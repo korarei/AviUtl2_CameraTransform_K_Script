@@ -23,10 +23,10 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta51](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta52](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 > [!CAUTION]
-> beta50 以降必須．
+> beta52 以降必須．
 
 ## 導入・更新・削除
 
@@ -129,7 +129,7 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 初期ラベル: `カメラ効果`
 
-カメラの描画結果を調整するスクリプト．
+カメラの描画結果を調整するスクリプト．(実際のカメラレンズを再現するものではない．)
 
 #### パラメータ
 
@@ -148,6 +148,7 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
   <summary>Depth of Field</summary>
 
   - DOF::Focus Distance: 目標までの距離
+  - DOF::Aperture::F-Stop: カメラの F 値
 
   </details>
 

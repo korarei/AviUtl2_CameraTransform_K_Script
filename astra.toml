@@ -5,7 +5,7 @@ requires-astra = ">=0.6.4"
 name = "CameraTransform_K"
 version = "0.1.0"
 author = "Korarei"
-requires-aviutl2 = "2005000"
+requires-aviutl2 = "2005200"
 
 [build]
 [[build.plugins]]
@@ -66,7 +66,7 @@ description = """
 
 - カメラ効果\\Transform@CameraTransform_K: カメラの位置や向きを調整
 - カメラ効果\\Track@CameraTransform_K: ターゲットへカメラを追従
-- カメラ効果\\Lens@CameraTransform_K: 見え方そのものを調整
+- カメラ効果\\Lens@CameraTransform_K: 見え方を調整
 
 アニメーション効果
 

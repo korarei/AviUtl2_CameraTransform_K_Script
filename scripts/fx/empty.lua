@@ -74,7 +74,9 @@ do
             return
         end
 
-        compose(relations_parent_layer)
+        if not compose(relations_parent_layer) then
+            return
+        end
 
         if not obj.copybuffer("object", kCacheImage) then
             stop("Failed to copy buffer")

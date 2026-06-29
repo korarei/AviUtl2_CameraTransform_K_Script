@@ -1,325 +1,252 @@
-# @CameraTransform_K
+# CameraTransform_K
 
 ![GitHub License](https://img.shields.io/github/license/korarei/AviUtl2_CameraTransform_K_Script)
 ![GitHub Last commit](https://img.shields.io/github/last-commit/korarei/AviUtl2_CameraTransform_K_Script)
 ![GitHub Downloads](https://img.shields.io/github/downloads/korarei/AviUtl2_CameraTransform_K_Script/total)
-![GitHub Release](https://img.shields.io/github/v/release/korarei/AviUtl2_CameraTransform_K_Script)
+[![GitHub Release][releases-badge]][releases-url]
+[![AviUtl2 Catalog][catalog-badge]][catalog-url]
 
-AviUtl ExEdit2のカメラ操作感を変更するスクリプト群．
+AviUtl ExEdit2 向けカメラ調整用ツール．
 
-現在使用可能なスクリプト
+以下の機能が追加される．
 
-- Transform
+カメラ効果
 
-- Parent
+- カメラ効果\\Transform@CameraTransform_K: カメラの位置や向きを調整
+- カメラ効果\\Track@CameraTransform_K: ターゲットへカメラを追従
+- カメラ効果\\Lens@CameraTransform_K: 見え方そのものを調整
 
-- Track
+アニメーション効果
 
-[ダウンロードはこちらから．](https://github.com/korarei/AviUtl2_CameraTransform_K_Script/releases)
+- 配置\\Empty@CameraTransform_K: エフェクト版グループ制御
+- 配置\\Relations@CameraTransform_K: 他オブジェクトと同期
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta18b](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta52](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 > [!CAUTION]
-> beta16以降必須．
+> beta52 以降必須．
 
-## 導入・削除・更新
+## 導入・更新・削除
 
-初期配置場所は`カメラ効果`である．
+### パッケージファイルからインストール
 
-`オブジェクト追加メニューの設定`から`ラベル`を変更することで任意の場所へ移動可能．
+#### 導入・更新
 
-### 導入
+[こちら][releases-url]からダウンロードした `*.au2pkg.zip` をAviUtl2にD&D．
 
-1.  同梱の`*.cam2`と`*.mod2`を`%ProgramData%`内の`aviutl2\Script`フォルダまたはその子フォルダに入れる．
+#### 削除
 
-`beta4`以降では`aviutl2.exe`と同じ階層内の`data\Script`フォルダ内でも可．
+パッケージ情報からアンインストールする．
 
-### 削除
+### [AviUtl2 カタログ](https://github.com/Neosku/aviutl2-catalog)からインストール
 
-1.  導入したものを削除する．
-
-### 更新
-
-1.  導入したものを上書きする．
+[こちら][catalog-url]から導入，更新，削除を行う．
 
 ## 使い方
-### Transform
 
-3DCGソフトのようなカメラ操作感を提供するスクリプト．カメラ上方向ベクトルと方向ベクトルを指定方法で移動回転する．
+> [!TIP]
+> エフェクトによるオブジェクトの座標変化を取得するためには `Parent Layer` や `Targrt Layer` で指定するオブジェクトに `Empty@CameraTransform_K` を追加する必要がある．
 
-- X, Y, Z: カメラの位置を定める．このとき，カメラの姿勢は変化しない．
+> [!WARNING]
+> 親オブジェクトとグループ制御の組み合わせによっては意図通りの座標変換が行われない場合がある．
 
-- Rotation: `Rotation Mode`リストで選択した回転方法に従ってカメラの姿勢を変化させる．
+### Transform@CameraTransform_K
 
-- Rotation Mode: 回転方法を選択する．AviUtl標準の回転方法は`ZYX Euler`である．選択できる方法は以下の8通り．
+初期ラベル: `カメラ効果`
 
-  - Quaternion: W，X，Y，Z回転を使用する．Wが実部，X，Y，Zが虚部である．W，X，Y，Zは大きさが1になるように正規化される．
+座標変換処理 (移動・回転・拡縮等) を行うスクリプト．
 
-  - Axis Angle: W，X，Y，Z回転を使用する．Wが回転角度，X，Y，Zが回転軸である．
+同一オブジェクトに複数配置した場合，下から上へ座標変換される．
 
-  - Euler: X，Y，Z回転を使用する．外因性オイラー角 (Tait–Bryan角である6種類) を指定．
+#### パラメータ
 
-- Parent Layer: 親オブジェクトのレイヤー番号を指定する．`0`または`カメラ自身のレイヤー番号`を指定した場合，下記`Parent`が存在すればそのデータを使用する．
+- <details>
+  <summary>Position</summary>
 
-親オブジェクトの位置，回転，拡大率によってカメラの座標系を移動させる．
+  - Position::X / Y / Z: 位置の変位を指定
 
-- Layer Reference: `Parent Layer`で指定するレイヤー番号の参照方法を設定する．
+  </details>
 
-  - Absolute: 絶対指定
+- <details>
+  <summary>Rotation</summary>
 
-  - Relative: 相対指定
+  - Rotation::W / X / Y / Z: 回転の変位を指定
+  - Rotation::Mode: 回転モードを指定 (Quaternion, Axis Angle, 外因性 Euler (Tait–Bryan) 各種)
 
-- PI: パラメータインジェクション．
+  </details>
 
-```lua
-{
-  x = 0.0, -- カメラのX座標 (number)
-  y = 0.0, -- カメラのY座標 (number)
-  z = 0.0, -- カメラのZ座標 (number)
-  rw = 0.0, -- カメラのW回転 (number)
-  rx = 0.0, -- カメラのX回転 (number)
-  ry = 0.0, -- カメラのY回転 (number)
-  rz = 0.0, -- カメラのZ回転 (number)
-  rot_mode = 21, -- カメラの回転モード (number)
-  parent_layer = 0, -- 親オブジェクトのレイヤー (number)
-  layer_ref = 0 -- 親オブジェクトのレイヤーを相対値で設定するかどうか (number)
-}
-```
+- <details>
+  <summary>Scale</summary>
 
-`{}`は既に挿入済みであるため，PI項目では中身のみ記載する．
+  - Scale::X / Y / Z: 拡大縮小の変位を指定
 
-`rot_mode`は以下のように記載する．
+  </details>
 
-- `0`: クォータニオン
+- <details>
+  <summary>Relations</summary>
 
-- `1`: 軸回転
+  - Relations::Parent Layer: 親オブジェクトのレイヤー番号を指定
 
-- `[5, 21]`: オイラー角 (外因性，Tait–Bryan角)
+  </details>
 
-オイラー角の回転順序は`0(3)`をX軸，`1(3)`をY軸，`2(3)`をZ軸のように3進数で表現した軸を回転順に並べ，10進数に変換して表現する．
+- <details>
+  <summary>Additional Options</summary>
 
-例えば，`XYZ Euler`は`012(3)`となり，`5`と表現する．
+  - Influence: 影響度合いを指定
+  - Layer Reference: レイヤー指定の参照方法を指定
+    - Absolute: 絶対指定 (指定したレイヤー番号)
+    - Relative: 相対指定 (自身のレイヤーからの相対番号)
 
-### Parent
+  </details>
 
-`Transform`の`Parent Layer`が`0`または`カメラ自身のレイヤー番号`のとき，子どもとする`Transform`の1つ上に設置することで親オブジェクトとして使用できる．
+### Track@CameraTransform_K
 
-通常オブジェクトとは異なり，回転方法としてZYXオイラー角以外を指定できる．
-
-- X, Y, Z: 根本位置．
-
-- Rotation: `Rotation Mode`リストで選択した回転方法に従って根本姿勢を変化させる．
-
-- Rotation Mode: 回転方法を選択する．AviUtl標準の回転方法は`ZYX Euler`である．選択できる方法は以下の8通り．
-
-  - Quaternion: W，X，Y，Z回転を使用する．Wが実部，X，Y，Zが虚部である．W，X，Y，Zは大きさが1になるように正規化される．
-
-  - Axis Angle: W，X，Y，Z回転を使用する．Wが回転角度，X，Y，Zが回転軸である．
-
-  - Euler: X，Y，Z回転を使用する．外因性オイラー角 (Tait–Bryan角である6種類) を指定．
-
-- Zoom: 根本拡大率．
-
-- PI: パラメータインジェクション．
-
-```lua
-{
-  x = 0.0, -- 根本のX座標 (number)
-  y = 0.0, -- 根本のY座標 (number)
-  z = 0.0, -- 根本のZ座標 (number)
-  rw = 0.0, -- 根本のW回転 (number)
-  rx = 0.0, -- 根本のX回転 (number)
-  ry = 0.0, -- 根本のY回転 (number)
-  rz = 0.0, -- 根本のZ回転 (number)
-  rot_mode = 21, -- 根本の回転モード (number)
-  zoom = 100.0 -- 根本拡大率 (number)
-}
-```
-
-`{}`は既に挿入済みであるため，PI項目では中身のみ記載する．
-
-`rot_mode`は以下のように記載する．(`Transform`と同じ)
-
-- `0`: クォータニオン
-
-- `1`: 軸回転
-
-- `[5, 21]`: オイラー角 (外因性, Tait–Bryan角)
-
-オイラー角の回転順序は`0(3)`をX軸，`1(3)`をY軸，`2(3)`をZ軸のように3進数で表現した軸を回転順に並べ，10進数に変換して表現する．
-
-例えば，`XYZ Euler`は`012(3)`となり，`5`と表現する．
-
-### Track
+初期ラベル: `カメラ効果`
 
 目標オブジェクトに対してカメラを向けるスクリプト．
 
-- Target Layer: 目標オブジェクトのレイヤー．
+#### パラメータ
 
-- Layer Reference: `Target Layer`で指定するレイヤー番号の参照方法を設定する．
+- Target Layer: 目標オブジェクトのレイヤーを指定
+- Track Axis: カメラを向ける軸を指定
+  - X / -X: X軸
+  - Y / -Y: Y軸
+  - Z / -Z: Z軸
 
-  - Absolute: 絶対指定
+- <details>
+  <summary>Additional Options</summary>
 
-  - Relative: 相対指定
+  - Influence: 影響度合いを指定
+  - Layer Reference: レイヤー指定の参照方法を指定
+    - Absolute: 絶対指定 (指定したレイヤー番号)
+    - Relative: 相対指定 (自身のレイヤーからの相対番号)
 
-- Influence: 影響度．
+  </details>
 
-- PI: パラメータインジェクション．
+### Lens@CameraTransform_K
 
-```lua
-{
-  target_layer = 1, -- 目標オブジェクトのレイヤー (number)
-  layer_ref = 0 -- 親オブジェクトのレイヤーを相対値で設定するかどうか (number)
-  influence = 100.0 -- 影響度 (number)
-}
-```
+初期ラベル: `カメラ効果`
 
-`{}`は既に挿入済みであるため，PI項目では中身のみ記載する．
+カメラの描画結果を調整するスクリプト．(実際のカメラレンズを再現するものではない．)
 
-## スクリプトモジュール
+#### パラメータ
 
-### transform 関数
+- Focal Length: 焦点距離を指定
+- Dolly Zoom: 対象の大きさを変えずに焦点距離を変更するかどうか
 
-このスクリプトのメイン関数．
+- <details>
+  <summary>Sensor</summary>
 
-|位置|名前|型|説明|
-|:---|:---:|:---:|:---|
-|引数 #1|`param`|table|UI設定値|
-|引数 #2|`parent`|table|親オブジェクトの情報|
-|引数 #3|`input`|table|カメラの座標，目標座標，上方向ベクトル|
-|戻り値 #1|`output`|table|変換後の`input`|
+  - Sensor::Fit: 計算に用いる方向を指定
+  - Sensor::Size: センササイズを指定
 
-```lua
-local param = {
-  x = 0.0, -- カメラのX座標 (number)
-  y = 0.0, -- カメラのY座標 (number)
-  z = 0.0, -- カメラのZ座標 (number)
-  rw = 0.0, -- カメラのW回転 (number)
-  rx = 0.0, -- カメラのX回転 (number)
-  ry = 0.0, -- カメラのY回転 (number)
-  rz = 0.0, -- カメラのZ回転 (number)
-  rot_mode = 21 -- カメラの回転モード (number)
-}
+  </details>
 
-local parent = {
-  type = 0, -- 有効無効 (number)
-  x = 0.0, -- 根本のX座標 (number)
-  y = 0.0, -- 根本のY座標 (number)
-  z = 0.0, -- 根本のZ座標 (number)
-  rw = 0.0, -- 根本のW回転 (number)
-  rx = 0.0, -- 根本のX回転 (number)
-  ry = 0.0, -- 根本のY回転 (number)
-  rz = 0.0, -- 根本のZ回転 (number)
-  rot_mode = 21, -- 根本の回転モード (number)
-  scale = 1.0 -- 根本スケール値 (number)
-}
+- <details>
+  <summary>Depth of Field</summary>
 
-local cam = obj.getoption("camera_param")
-local input = {
-  x = cam.x,
-  y = cam.y,
-  z = cam.z,
-  tx = cam.tx,
-  ty = cam.ty,
-  tz = cam.tz,
-  ux = cam.ux,
-  uy = cam.uy,
-  uz = cam.uz
-}
-```
+  - DOF::Focus Distance: 目標までの距離
+  - DOF::Aperture::F-Stop: カメラの F 値
 
-### rotate 関数
+  </details>
 
-回転モードに応じて複数の3次元ベクトルを回転させる．
+### Empty@CameraTransform_K
 
-|位置|名前|型|説明|
-|:---|:---:|:---:|:---|
-|引数 #1|`rot`|table|設定値|
-|引数 #2|`vec_i`|table|3次元ベクトル|
-|…|…|…|同様に`vec_i`を追加可能|
-|戻り値 #1|`vec_o`|table|回転後の3次元ベクトル|
-|…|…|…|引数に加えた`vec_i`の数だけ順に回転後のベクトルが返る|
+初期ラベル: `配置`
 
-```lua
-local rot = {
-  rw = 0.0, -- W回転 (number)
-  rx = 0.0, -- X回転 (number)
-  ry = 0.0, -- Y回転 (number)
-  rz = 0.0, -- Z回転 (number)
-  rot_mode = 21 -- 回転モード (number)
-}
+親オブジェクトとして機能する．
 
-local vec = {
-  x = 0.0, -- X要素
-  y = 0.0, -- Y要素
-  z = 0.0 -- Z要素
-}
-```
+> [!WARNING]
+> エフェクトの個別オブジェクト設定が有効な場合は使用不可．
 
-### encode_order 関数
+#### パラメータ
 
-`rot_mode`で使う数字を計算する．
+- <details>
+  <summary>Position</summary>
 
-|位置|名前|型|説明|
-|:---|:---:|:---:|:---|
-|引数 #1|`order`|string|回転順序|
-|戻り値 #1|`code`|number|エンコードされた回転順序|
+  - Position::X / Y / Z: 位置の変位を指定
 
-`order`は`"xyz"`のようにして使用する．
+  </details>
 
-## License
+- <details>
+  <summary>Rotation</summary>
 
-LICENSEファイルに記載．
+  - Rotation::W / X / Y / Z: 回転の変位を指定
+  - Rotation::Mode: 回転モードを指定 (Quaternion, Axis Angle, 外因性 Euler (Tait–Bryan) 各種)
 
-## Credits
+  </details>
 
-### AviUtl ExEdit2 Plugin SDK
+- <details>
+  <summary>Scale</summary>
 
-https://spring-fragrance.mints.ne.jp/aviutl/
+  - Scale::X / Y / Z: 拡大縮小の変位を指定
 
----
+  </details>
 
-The MIT License
+- <details>
+  <summary>Relations</summary>
 
-Copyright (c) 2025 Kenkun
+  - Relations::Parent Layer: 親オブジェクトのレイヤー番号を指定
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  </details>
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+- <details>
+  <summary>Visibility</summary>
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+  - Visibility::Show In::Viewports: プレビューで描画する
+  - Visibility::Show In::Renders: レンダリングで描画する
 
-## Change Log
-- **v1.0.5**
-  - オブジェクトの存在判定方法を変更．
+  </details>
 
-- **v1.0.4**
-  - `rotate`関数を複数値を返す関数に変更．
-  - `Transform`と`Track`における`Use Relative Layer`チェックボックスを`Layer Reference`リストに変更 (破壊的)
+- <details>
+  <summary>Additional Options</summary>
 
-- **v1.0.3**
-  - `.mod2`化
-  - `Parent`でアンカーによる仮想的な親オブジェクトを表示するように変更．
+  - Influence: 影響度合いを指定
+  - Layer Reference: レイヤー指定の参照方法を指定
+    - Absolute: 絶対指定 (指定したレイヤー番号)
+    - Relative: 相対指定 (自身のレイヤーからの相対番号)
 
-- **v1.0.2**
-  - 構造体の名前が衝突する問題を回避．
+  </details>
 
-- **v1.0.1**
-  - 改行コードをCRLFに変更．
+### Relations@CameraTransform_K
 
-- **v1.0.0**
-  - Release
+初期ラベル: `配置`
+
+指定したオブジェクトの位置姿勢情報をコピーする．
+
+- Parent Layer: 親オブジェクトのレイヤー番号を指定
+
+- <details>
+  <summary>Additional Options</summary>
+
+  - Influence: 影響度合いを指定
+  - Layer Reference: レイヤー指定の参照方法を指定
+    - Absolute: 絶対指定 (指定したレイヤー番号)
+    - Relative: 相対指定 (自身のレイヤーからの相対番号)
+
+  </details>
+
+## ビルド方法
+
+[リリース用ワークフロー](./.github/workflows/releaser.yml)を参照されたい．
+
+[extern](./modules/extern/) 内 `vcpkg` ディレクトリに [vcpkg](https://github.com/microsoft/vcpkg) 本体を配置する必要がある．
+
+## ライセンス
+
+本プログラムのライセンスは [LICENSE](./LICENSE) を参照されたい．
+
+また，本プログラムが利用するサードパーティ製ライブラリ等のライセンス情報は [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES.md) に記載している．
+
+## 更新履歴
+
+[CHANGELOG](./CHANGELOG.md) を参照されたい．
+
+<!-- links -->
+
+[releases-url]: https://github.com/korarei/AviUtl2_CameraTransform_K_Script/releases
+[releases-badge]: https://img.shields.io/github/v/release/korarei/AviUtl2_CameraTransform_K_Script
+[catalog-url]: https://aviutl2-catalog-badge.sevenc7c.workers.dev/package/korarei.CameraTransform_K
+[catalog-badge]: https://aviutl2-catalog-badge.sevenc7c.workers.dev/badge/v/korarei.CameraTransform_K

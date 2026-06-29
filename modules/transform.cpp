@@ -6,8 +6,11 @@
 #include <Eigen/Geometry>
 
 namespace {
-std::unordered_set<int> visited;
-Eigen::Affine3d affine = Eigen::Affine3d::Identity();
+const std::array<Eigen::Vector3d, 3> kAxes = {
+    Eigen::Vector3d::UnitX(),
+    Eigen::Vector3d::UnitY(),
+    Eigen::Vector3d::UnitZ(),
+};
 
 struct TransformProperty {
     struct Position {
@@ -35,12 +38,6 @@ struct TransformProperty {
 }
 
 [[nodiscard]] Eigen::Affine3d ToAffine(double t, const TransformProperty& xform) {
-    static const std::array<Eigen::Vector3d, 3> axis{
-        Eigen::Vector3d::UnitX(),
-        Eigen::Vector3d::UnitY(),
-        Eigen::Vector3d::UnitZ(),
-    };
-
     Eigen::Affine3d h = Eigen::Affine3d::Identity();
 
     h.translate(Eigen::Vector3d(xform.position.x * t, xform.position.y * t, xform.position.z * t));
@@ -69,7 +66,7 @@ struct TransformProperty {
         const std::array<int, 3> order{xform.rotation.mode / 9, (xform.rotation.mode / 3) % 3, xform.rotation.mode % 3};
         const std::array<double, 3> angle{ToRad(xform.rotation.x), ToRad(xform.rotation.y), ToRad(xform.rotation.z)};
 
-        const auto aa = [&](int i) { return Eigen::AngleAxisd(angle[i], axis[i]); };
+        const auto aa = [&](int i) { return Eigen::AngleAxisd(angle[i], kAxes[i]); };
 
         h.rotate((aa(order[2]) * aa(order[1]) * aa(order[0])).toRotationMatrix());
     } else {
@@ -80,6 +77,9 @@ struct TransformProperty {
 
     return h;
 }
+
+std::unordered_set<int> visited;
+Eigen::Affine3d affine = Eigen::Affine3d::Identity();
 }  // namespace
 
 namespace transform {
@@ -113,30 +113,17 @@ void Align(SCRIPT_MODULE_PARAM* param) {
         to = Eigen::Vector3d::UnitZ();
     }
 
-    Eigen::Vector3d from;
+    const auto axis = param->get_param_int(2);
 
-    switch (param->get_param_int(2)) {
-        case -3:
-            from = -Eigen::Vector3d::UnitZ();
-            break;
-        case -2:
-            from = -Eigen::Vector3d::UnitY();
-            break;
-        case -1:
-            from = -Eigen::Vector3d::UnitX();
-            break;
-        case 1:
-            from = Eigen::Vector3d::UnitX();
-            break;
-        case 2:
-            from = Eigen::Vector3d::UnitY();
-            break;
-        case 3:
-            from = Eigen::Vector3d::UnitZ();
-            break;
-        default:
-            param->set_error("Unsupported axis");
-            return;
+    if (axis == 0 || axis > 3 || axis < -3) {
+        param->set_error("Unsupported axis");
+        return;
+    }
+
+    Eigen::Vector3d from = kAxes[std::abs(axis) - 1];
+
+    if (axis < 0) {
+        from = -from;
     }
 
     const Eigen::Quaterniond q = Eigen::Quaterniond::Identity().slerp(t, Eigen::Quaterniond::FromTwoVectors(from, to));

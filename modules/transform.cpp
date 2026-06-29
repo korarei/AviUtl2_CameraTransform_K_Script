@@ -61,10 +61,14 @@ struct TransformProperty {
             v.normalize();
         }
 
-        h.rotate(Eigen::AngleAxisd(ToRad(xform.rotation.w), v));
+        h.rotate(Eigen::AngleAxisd(ToRad(xform.rotation.w * t), v));
     } else if (xform.rotation.mode >= 5 && xform.rotation.mode <= 21) {
         const std::array<int, 3> order{xform.rotation.mode / 9, (xform.rotation.mode / 3) % 3, xform.rotation.mode % 3};
-        const std::array<double, 3> angle{ToRad(xform.rotation.x), ToRad(xform.rotation.y), ToRad(xform.rotation.z)};
+        const std::array<double, 3> angle{
+            ToRad(xform.rotation.x * t),
+            ToRad(xform.rotation.y * t),
+            ToRad(xform.rotation.z * t),
+        };
 
         const auto aa = [&](int i) { return Eigen::AngleAxisd(angle[i], kAxes[i]); };
 
@@ -73,7 +77,8 @@ struct TransformProperty {
         h.rotate(Eigen::Quaterniond::Identity());
     }
 
-    h.scale(Eigen::Vector3d(xform.scale.x * t, xform.scale.y * t, xform.scale.z * t));
+    h.scale(Eigen::Vector3d(std::lerp(1.0, xform.scale.x, t), std::lerp(1.0, xform.scale.y, t),
+                            std::lerp(1.0, xform.scale.z, t)));
 
     return h;
 }

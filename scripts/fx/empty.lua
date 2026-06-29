@@ -37,6 +37,8 @@ if obj.num ~= 1 then
     return
 end
 
+local _ = obj.setanchor("position_x,position_y,position_z", 0, "line", "xyz")
+
 do
     --#include "../parent.lua"
     local parent = require("parent")

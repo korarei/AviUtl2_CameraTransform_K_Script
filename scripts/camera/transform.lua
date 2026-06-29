@@ -28,6 +28,8 @@ local relations_parent_layer = 0 --track@relations_parent_layer:Relations::Paren
 local influence = 100.0 --track@influence:Influence,0,100,100,0.01
 local layer_reference = 0 --select@layer_reference:Layer Reference=0,Absolute=0,Relative=1
 
+local _ = obj.setanchor("position_x,position_y,position_z", 0, "line", "xyz")
+
 do
     --#include "../parent.lua"
     local parent = require("parent")

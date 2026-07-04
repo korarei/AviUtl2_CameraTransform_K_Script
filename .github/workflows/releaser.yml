@@ -1,10 +1,9 @@
 name: Releaser
 
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v*'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   build:
@@ -12,14 +11,20 @@ jobs:
     runs-on: windows-2025-vs2026
 
     permissions:
+      artifact-metadata: write
+      attestations: write
       contents: write
       id-token: write
-      attestations: write
-      artifact-metadata: write
+      packages: write
 
     defaults:
       run:
         shell: pwsh
+
+    env:
+      USERNAME: korarei
+      FEED_URL: https://nuget.pkg.github.com/korarei/index.json
+      VCPKG_BINARY_SOURCES: clear;nuget,https://nuget.pkg.github.com/korarei/index.json,readwrite
 
     steps:
     - name: Checkout repository
@@ -27,53 +32,47 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Extract metadata
-      id: meta
-      run: |
-        $repoName = $env:GITHUB_REPOSITORY.Split('/')[-1]
-        if ($repoName -match 'AviUtl2?_(.+?)(?:_(?:Plugin|Script))?$') {
-            $extensionName = $matches[1]
-        } else {
-            $extensionName = $repoName
-        }
-        "name=$extensionName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
-        if ($env:GITHUB_REF_NAME -match '^v(\d+\.\d+\.\d+)') {
-            $version = $matches[1]
-        } else {
-            $version = "0.1.0"
-        }
-        "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
-    - name: Setup MSVC (x64)
+    - name: Setup environment
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
 
-    - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgDirectory: modules/extern/vcpkg
-
     - name: Setup Python
       uses: actions/setup-python@v6
       with:
-        python-version: '3.14'
+        python-version: "3.14"
+        cache: pip
+
+    - name: Add NuGet sources
+      run: |
+        $nuget = & "$env:VCPKG_ROOT\vcpkg.exe" fetch nuget
+
+        & $nuget sources add `
+          -Source $env:FEED_URL `
+          -StorePasswordInClearText `
+          -Name GitHubPackages `
+          -UserName $env:USERNAME `
+          -Password "${{ secrets.GITHUB_TOKEN }}"
+
+        & $nuget setapikey `
+          "${{ secrets.GITHUB_TOKEN }}" `
+          -Source $env:FEED_URL
 
     - name: Install dependencies & Build extension
       run: |
-        pip install git+https://github.com/korarei/AviUtl2_Astra.git@v0.6.5
+        python -m pip install git+https://github.com/korarei/AviUtl2_Astra.git@v0.6.5
 
-        astra release -v '${{ steps.meta.outputs.version }}'
+        $version = $env:GITHUB_REF_NAME.Substring(1)
+        astra release -v $version
 
     - name: Generate Artifact Attestation
       uses: actions/attest@v4
       with:
-        subject-path: 'release/*.zip'
+        subject-path: release/*.zip
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v3
       with:
-        name: '${{ steps.meta.outputs.name }}_${{ github.ref_name }}'
-        files: 'release/*.zip'
-        body_path: 'release/release_notes.md'
+        name: "${{ github.ref_name }}"
+        files: release/*.zip
+        body_path: release/release_notes.md

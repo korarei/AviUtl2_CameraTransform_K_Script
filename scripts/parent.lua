@@ -21,10 +21,6 @@ do
             return false
         end
 
-        if not has_empty then
-            vector.reset()
-        end
-
         vector.tryenter(obj.layer)
 
         if not vector.tryenter(target) then
@@ -59,6 +55,8 @@ do
             else
                 vector.reset()
             end
+        else
+            vector.reset()
         end
 
         do

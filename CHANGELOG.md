@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.1
+
+- 必要 AviUtl2 を beta53 以降に変更
+- コード整理
+
 ## v2.0.0
 
 > [!CAUTION]
@@ -17,13 +22,13 @@
 
 ## v1.0.4
 
-- `rotate`関数を複数値を返す関数に変更
-- `Transform`と`Track`における`Use Relative Layer`チェックボックスを`Layer Reference`リストに変更 (破壊的)
+- `rotate` 関数を複数値を返す関数に変更
+- `Transform` と `Track` における `Use Relative Layer` チェックボックスを `Layer Reference` リストに変更 (破壊的)
 
 ## v1.0.3
 
-- `.mod2`化
-- `Parent`でアンカーによる仮想的な親オブジェクトを表示するように変更
+- `.mod2` 化
+- `Parent` でアンカーによる仮想的な親オブジェクトを表示するように変更
 
 ## v1.0.2
 
@@ -31,7 +36,7 @@
 
 ## v1.0.1
 
-- 改行コードをCRLFに変更
+- 改行コードを CRLF に変更
 
 ## v1.0.0
 

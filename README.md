@@ -23,10 +23,10 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 ## 動作確認
 
-- [AviUtl ExEdit2 beta52](https://spring-fragrance.mints.ne.jp/aviutl/)
+- [AviUtl ExEdit2 beta53](https://spring-fragrance.mints.ne.jp/aviutl/)
 
 > [!CAUTION]
-> beta52 以降必須．
+> beta53 以降必須．
 
 ## 導入・更新・削除
 

@@ -44,17 +44,16 @@ jobs:
 
     - name: Add NuGet sources
       run: |
-        $nuget = & "$env:VCPKG_ROOT\vcpkg.exe" fetch nuget
-
-        & $nuget sources add `
+        .$($env:VCPKG_ROOT\vcpkg.exe fetch nuget) `
+          sources add `
           -Source $env:FEED_URL `
           -StorePasswordInClearText `
           -Name GitHubPackages `
           -UserName $env:USERNAME `
           -Password "${{ secrets.GITHUB_TOKEN }}"
 
-        & $nuget setapikey `
-          "${{ secrets.GITHUB_TOKEN }}" `
+        .$($env:VCPKG_ROOT\vcpkg.exe fetch nuget) `
+          setapikey "${{ secrets.GITHUB_TOKEN }}" `
           -Source $env:FEED_URL
 
     - name: Install dependencies & Build extension

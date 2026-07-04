@@ -232,8 +232,6 @@ AviUtl ExEdit2 向けカメラ調整用ツール．
 
 [リリース用ワークフロー](./.github/workflows/releaser.yml)を参照されたい．
 
-[extern](./modules/extern/) 内 `vcpkg` ディレクトリに [vcpkg](https://github.com/microsoft/vcpkg) 本体を配置する必要がある．
-
 ## ライセンス
 
 本プログラムのライセンスは [LICENSE](./LICENSE) を参照されたい．
